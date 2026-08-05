@@ -1,0 +1,2258 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Ti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Reenie+Beanie&family=Space+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="./shared.js"></script>
+<style>
+/* ==========================================================================
+   0. RESET + VARIABLES BASE — sistema neo-brutalista unificado "Para Ti"
+========================================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root{
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-serif: 'Fraunces', serif;
+  --font-hand: 'Reenie Beanie', cursive;
+  --font-mono: 'Space Mono', monospace;
+  --border-w: 3px;
+  --radius-soft: 2px;
+}
+/* TEMA 1 — COOKY (BTS): rosa pastel + vinilo + papel, editorial romántico */
+body.theme-cooky{
+  --bg: #f9c6d8; --bg-2: #ffe1eb; --card: #fffaf9; --ink: #1a0a10;
+  --accent: #ec1560; --accent-2: #f0b429; --accent-soft: #ffe4ec;
+  --shadow-color: #1a0a10; --pattern-opacity: 0.3;
+  --grain-color: 26,10,16;
+}
+/* TEMA 2 — JOJI: lluvia, lo-fi, editorial oscuro, más contraste y luz cálida */
+body.theme-joji{
+  --bg: #08090c; --bg-2: #121319; --card: #16181f; --ink: #eeece7;
+  --accent: #d43a53; --accent-2: #8a97b8; --accent-soft: #1c1f28;
+  --shadow-color: #000000; --pattern-opacity: 0.45;
+  --grain-color: 220,225,235;
+}
+/* TEMA 3 — BRAWL STARS: cómic, impacto, energía, más saturado y pop */
+body.theme-brawl{
+  --bg: #451b78; --bg-2: #6d28d9; --card: #17d4ff; --ink: #10021f;
+  --accent: #ff2d55; --accent-2: #ffd60a; --accent-soft: #a6ecff;
+  --shadow-color: #10021f; --pattern-opacity: 0.55;
+  --grain-color: 16,2,31;
+}
+body{
+  font-family: var(--font-display);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  padding-bottom: 90px;
+  transition: background 0.6s ease, color 0.6s ease;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* grano sutil sobre todo el body para quitar planitud digital */
+body::after{
+  content: ''; position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  opacity: 0.035; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== 1. FONDOS AMBIENTALES POR TEMA ===== */
+.bg-layer{ position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.bg-layer::before{ content:''; position: absolute; inset: 0; transition: opacity 0.6s ease; }
+.bg-layer::after{ content:''; position: absolute; inset: 0; opacity: var(--pattern-opacity); transition: opacity 0.6s ease; }
+.theme-cooky .bg-layer::before{
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(255,255,255,0.35), transparent 60%),
+    url('./img/coocky.png');
+  background-size: 100% 100%, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  opacity: 0.38;
+}
+.theme-cooky .bg-layer::after{ background-image: radial-gradient(circle, var(--accent) 1.5px, transparent 2px); background-size: 30px 30px; }
+.theme-joji .bg-layer::before{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212,58,83,0.22), transparent 65%),
+    url('./img/joji.png');
+  background-size: 100% 100%, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+.theme-joji .bg-layer::after{ background: repeating-linear-gradient(100deg, transparent 0px, transparent 38px, rgba(210,220,240,0.14) 39px, transparent 41px); animation: rainfall 6s linear infinite; animation-play-state: var(--anim-play, running); }
+@keyframes rainfall{ 0%{ background-position-y: 0; } 100%{ background-position-y: 400px; } }
+.theme-brawl .bg-layer::before{
+  background:
+    radial-gradient(circle at 15% 15%, rgba(255,214,10,0.2), transparent 30%),
+    radial-gradient(circle at 85% 25%, rgba(23,212,255,0.16), transparent 30%),
+    radial-gradient(circle at 45% 75%, rgba(255,45,85,0.18), transparent 32%);
+  animation: brawlStarsTwinkle 3s ease-in-out infinite;
+  animation-play-state: var(--anim-play, running);
+}
+.theme-brawl .bg-layer::after{ background-image: radial-gradient(var(--accent-2) 3px, transparent 3.5px), radial-gradient(var(--card) 2px, transparent 2.5px); background-size: 60px 60px, 40px 40px; background-position: 0 0, 20px 20px; }
+@keyframes brawlStarsTwinkle{ 0%,100%{ opacity: 0.35; } 25%{ opacity: 0.7; } 50%{ opacity: 0.45; } 75%{ opacity: 0.8; } }
+
+/* ===== 1b. ARTWORK DECORATIVO POR TEMA (Cooky/Joji imágenes; Brawl 100% CSS) ===== */
+.theme-artwork{ position: fixed; z-index: 1; pointer-events: none; opacity: 0.9; transition: opacity 0.6s ease; will-change: transform; }
+.theme-joji .theme-artwork{ opacity: 0.62; }
+.theme-cooky .cooky-art-1{ top: 5%; right: 5%; width: 180px; height: 180px; background: url('./img/cookytata.png') center/contain no-repeat; filter: drop-shadow(0 0 20px var(--accent)); animation: floatGentle 8s ease-in-out infinite; }
+.theme-cooky .cooky-art-2{ bottom: 15%; left: 3%; width: 120px; height: 120px; background: url('./img/cookyminiheart.png') center/contain no-repeat; filter: drop-shadow(0 0 15px var(--accent-2)); animation: floatGentle 10s ease-in-out infinite reverse; }
+.theme-cooky .cooky-art-3{ top: 40%; right: 2%; width: 100px; height: 100px; background: url('./img/coocky3enamorau.png') center/contain no-repeat; animation: spinSlow 20s linear infinite; }
+.theme-joji .joji-art-1{ top: 8%; left: 5%; width: 220px; height: 220px; background: url('./img/joji3.png') center/contain no-repeat; filter: drop-shadow(0 0 30px var(--accent)); animation: floatGentle 12s ease-in-out infinite; }
+.theme-joji .joji-art-2{ bottom: 10%; right: 5%; width: 180px; height: 180px; background: url('./img/joji2.png') center/contain no-repeat; filter: drop-shadow(0 0 25px var(--accent-2)) sepia(0.2); animation: floatGentle 15s ease-in-out infinite reverse; }
+.theme-brawl .brawl-art-1, .theme-brawl .brawl-art-2, .theme-brawl .brawl-art-3{ opacity: 0.9; will-change: transform; }
+.theme-brawl .brawl-art-1{ top: 6%; right: 4%; width: 130px; height: 130px; background: radial-gradient(circle, var(--accent-2) 0%, transparent 55%); clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%); filter: drop-shadow(0 0 14px var(--accent-2)); animation: brawlStarSpin 12s linear infinite; }
+.theme-brawl .brawl-art-2{ bottom: 10%; left: 4%; width: 110px; height: 130px; background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 45%), linear-gradient(160deg, var(--card), var(--accent)); clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); filter: drop-shadow(0 0 16px var(--card)); animation: bounceFloat 4s ease-in-out infinite; }
+.theme-brawl .brawl-art-3{ top: 45%; right: 1%; width: 150px; height: 150px; opacity: 0.5; background: repeating-conic-gradient(var(--accent-2) 0deg 8deg, transparent 8deg 16deg); -webkit-mask: radial-gradient(circle, #000 30%, transparent 68%); mask: radial-gradient(circle, #000 30%, transparent 68%); animation: brawlStarSpin 22s linear infinite reverse; }
+@keyframes floatGentle{ 0%,100%{ transform: translateY(0) rotate(0deg); } 25%{ transform: translateY(-15px) rotate(2deg); } 50%{ transform: translateY(5px) rotate(-1deg); } 75%{ transform: translateY(-8px) rotate(1deg); } }
+@keyframes bounceFloat{ 0%,100%{ transform: translateY(0) scale(1); } 50%{ transform: translateY(-20px) scale(1.05); } }
+@keyframes spinSlow{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg); } }
+@keyframes brawlStarSpin{ from{ transform: rotate(0deg) scale(1); } 50%{ transform: rotate(180deg) scale(1.12); } to{ transform: rotate(360deg) scale(1); } }
+
+/* Partículas de clic por tema */
+.star-particle{ position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 10; border-radius: 50%; animation: starParticleFloat 1s ease-out forwards; }
+@keyframes starParticleFloat{ 0%{ transform: translate(0,0) scale(0) rotate(0deg); opacity: 1; } 100%{ transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(360deg); opacity: 0; } }
+
+/* ===== 2. LOADER — Pelota de Voleibol ===== */
+#loader-screen{
+  position: fixed; inset: 0; background: #f0b429; z-index: 9999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 6px solid #10021f; overflow: hidden;
+  background-image: radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255,255,255,0.35), transparent 60%);
+}
+#loader-screen::before{
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(16,2,31,0.07) 1px, transparent 1px);
+  background-size: 5px 5px; pointer-events: none;
+}
+.loader-stage{ position: relative; width: 140px; height: 220px; z-index: 2; margin-bottom: 32px; }
+.loader-ball-shadow{
+  position: absolute; bottom: 4px; left: 50%; width: 74px; height: 16px; transform: translateX(-50%);
+  background: rgba(16,2,31,0.35); border-radius: 50%; filter: blur(1px);
+  animation: ballShadowPulse 0.55s ease-in-out infinite alternate;
+}
+@keyframes ballShadowPulse{ from{ transform: translateX(-50%) scale(1); opacity: 0.35; } to{ transform: translateX(-50%) scale(0.5); opacity: 0.12; } }
+.loader-ball{
+  position: absolute; bottom: 20px; left: 50%; width: 70px; height: 70px; margin-left: -35px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #f5f3f0 30%, #e8e4df 70%, #d8d2cb 100%);
+  border: 3px solid #10021f;
+  box-shadow: 4px 6px 0px rgba(16,2,31,0.5), inset -5px -5px 12px rgba(0,0,0,0.1), inset 5px 5px 10px rgba(255,255,255,0.9);
+  z-index: 10; overflow: hidden;
+}
+/* Costura 1 — S-curve horizontal */
+.loader-ball::before{
+  content:''; position: absolute; top: 50%; left: -10%; width: 120%; height: 2.5px; margin-top: -1.25px;
+  background: #2563eb; border-radius: 50%; transform: rotate(-20deg);
+  box-shadow: 0 0 1px rgba(37,99,235,0.4);
+}
+/* Costura 2 — vertical curvada */
+.loader-ball::after{
+  content:''; position: absolute; top: -10%; left: 50%; width: 2.5px; height: 120%; margin-left: -1.25px;
+  background: #2563eb; border-radius: 50%; transform: rotate(18deg);
+  box-shadow: 0 0 1px rgba(37,99,235,0.4);
+}
+/* Costura 3 — diagonal (requiere elemento interno) */
+.loader-ball-inner{
+  position: absolute; inset: 0; pointer-events: none;
+}
+.loader-ball-inner::before{
+  content:''; position: absolute; top: 15%; left: -15%; width: 130%; height: 2.5px;
+  background: #2563eb; border-radius: 50%; transform: rotate(45deg);
+  box-shadow: 0 0 1px rgba(37,99,235,0.4);
+}
+.loader-ball-inner::after{
+  content:''; position: absolute; inset: 0; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, transparent 40%, rgba(0,0,0,0.08) 100%);
+  pointer-events: none;
+}
+.loader-title{
+  margin-top: 14px; font-weight: 900; font-size: 1.15rem; letter-spacing: 0.08em;
+  background: #fffaf9; color: #10021f; padding: 13px 32px; border: 3px solid #10021f;
+  box-shadow: 5px 5px 0px #10021f, 9px 9px 0px rgba(16,2,31,0.18); text-transform: uppercase; min-width: 280px; text-align: center; z-index: 5;
+}
+.loader-sub{ margin-top: 14px; font-family: var(--font-mono); font-size: 0.78rem; color: #10021f; font-weight: 700; opacity: 0.75; letter-spacing: 0.05em; }
+.loader-progress-track{ margin-top: 20px; width: 280px; height: 12px; border: 3px solid #10021f; background: #fffaf9; position: relative; overflow: hidden; box-shadow: 3px 3px 0px #10021f; }
+.loader-progress-fill{ position: absolute; inset: 0; width: 0%; background: repeating-linear-gradient(45deg, #2563eb, #2563eb 10px, #1d4ed8 10px, #1d4ed8 20px); }
+
+/* ===== 3. PANTALLA INTRO ===== */
+#intro-screen {
+  position: fixed; inset: 0; background: #0b0c10; z-index: 9998;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+#intro-screen::before{
+  content:''; position: absolute; width: 140px; height: 140px; top: 8%; left: 8%;
+  background: radial-gradient(circle, rgba(255,47,110,0.28), transparent 65%);
+  filter: blur(2px); animation: introOrb 6s ease-in-out infinite;
+}
+#intro-screen::after{
+  content:''; position: absolute; width: 100px; height: 100px; bottom: 10%; right: 10%;
+  background: radial-gradient(circle, rgba(255,210,63,0.25), transparent 65%);
+  filter: blur(2px); animation: introOrb 7s ease-in-out infinite reverse;
+}
+@keyframes introOrb{ 0%,100%{ transform: translate(0,0) scale(1); opacity: 0.6; } 50%{ transform: translate(-12px, 12px) scale(1.2); opacity: 1; } }
+.intro-images{ position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.intro-img{ position: absolute; border-radius: 12px; filter: blur(1px) brightness(0.7) saturate(0.8); opacity: 0.35; object-fit: cover; }
+.intro-img-1{ width: 180px; height: 180px; top: 8%; left: 5%; transform: rotate(-8deg); animation: introFloat1 8s ease-in-out infinite; }
+.intro-img-2{ width: 160px; height: 200px; top: 12%; right: 6%; transform: rotate(6deg); animation: introFloat2 9s ease-in-out infinite; }
+.intro-img-3{ width: 150px; height: 150px; bottom: 12%; left: 15%; transform: rotate(4deg); animation: introFloat2 7s ease-in-out infinite reverse; }
+@keyframes introFloat1{ 0%,100%{ transform: translate(0,0) rotate(-8deg); } 50%{ transform: translate(8px,-10px) rotate(-5deg); } }
+@keyframes introFloat2{ 0%,100%{ transform: translate(0,0) rotate(6deg); } 50%{ transform: translate(-6px,8px) rotate(9deg); } }
+#intro-btn {
+  background: #ec1560; color: #fff; font-family: var(--font-display);
+  font-size: 3.2rem; font-weight: 900; border: 6px solid #fff;
+  padding: 22px 48px; cursor: pointer; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 10px 10px 0px rgba(255,255,255,0.9); text-transform: uppercase;
+  position: relative; z-index: 10; letter-spacing: -0.5px; line-height: 1.05;
+  max-width: 90vw;
+}
+#intro-btn::before{
+  content: ''; position: absolute; inset: -6px; border: 3px solid rgba(255,255,255,0.55);
+  animation: introPulse 1.8s ease-out infinite; pointer-events: none;
+}
+@keyframes introPulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.12); opacity: 0; } }
+#intro-btn:hover { background: #fff; color: #10021f; box-shadow: 14px 14px 0px #ec1560; border-color: #ec1560; transform: translate(-4px, -4px); }
+#intro-btn:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0px #ec1560; }
+.intro-tagline{
+  position: relative; z-index: 10; margin-bottom: 22px; text-align: center;
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: rgba(255,47,110,0.85);
+  animation: taglineFlicker 3.5s ease-in-out infinite;
+}
+@keyframes taglineFlicker { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+/* ===== 4. REPRODUCTOR MP3 (FLOTANTE Y MODAL) ===== */
+#mp3-notification {
+  position: fixed; left: -350px; top: 20px; width: 300px;
+  background: var(--card); border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0px var(--shadow-color); z-index: 1000;
+  display: flex; flex-direction: column; padding: 14px;
+  font-family: var(--font-mono); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  border-left: 8px solid var(--accent);
+}
+#mp3-notification:hover { transform: translateX(5px) !important; }
+.mp3-notif-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+.mp3-notif-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.mp3-notif-eq span { width: 3px; background: var(--accent); animation: eqBounce 0.9s ease-in-out infinite; }
+.mp3-notif-eq span:nth-child(1){ height: 60%; animation-delay: 0s; }
+.mp3-notif-eq span:nth-child(2){ height: 100%; animation-delay: 0.18s; }
+.mp3-notif-eq span:nth-child(3){ height: 45%; animation-delay: 0.36s; }
+.mp3-notif-eq span:nth-child(4){ height: 80%; animation-delay: 0.1s; }
+.mp3-notif-eq span:nth-child(5){ height: 55%; animation-delay: 0.28s; }
+@keyframes eqBounce { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+.mp3-notif-song { font-size: 1rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 12px; color: var(--ink); }
+.mp3-notif-controls { display: flex; gap: 8px; }
+.mp3-btn {
+  background: var(--bg); border: 2px solid var(--ink); width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900;
+  transition: all 0.15s ease; color: var(--ink); font-size: 0.65rem; font-family: var(--font-mono);
+}
+.mp3-btn:hover { background: var(--accent); color: var(--card); }
+.mp3-btn:active { transform: translate(2px, 2px); }
+
+/* "pelotilla" flotante — arrastrable a cualquier parte de la pantalla */
+#mp3-mini-btn {
+  position: fixed; left: 24px; top: 24px; width: 58px; height: 58px;
+  background: radial-gradient(circle at 32% 28%, #fff2c4 0%, var(--accent-2) 55%, #c98a10 100%);
+  border: 3px solid var(--ink);
+  box-shadow: 4px 5px 0px var(--ink), inset -5px -5px 10px rgba(0,0,0,0.2), inset 4px 4px 8px rgba(255,255,255,0.4);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: grab; z-index: 999;
+  transition: box-shadow 0.25s ease, opacity 0.3s ease;
+  opacity: 0; pointer-events: none;
+  color: var(--ink); touch-action: none; user-select: none;
+}
+#mp3-mini-btn.dragging { cursor: grabbing; transition: none; box-shadow: 2px 3px 0px var(--ink); }
+#mp3-mini-btn:hover:not(.dragging) { box-shadow: 6px 7px 0px var(--ink); }
+#mp3-mini-btn svg { width: 22px; height: 22px; fill: var(--ink); pointer-events: none; }
+#mp3-mini-btn::after{
+  content:''; position:absolute; inset:0; border-radius:50%;
+  border: 2px dashed rgba(16,2,31,0.25); animation: miniBtnSpin 6s linear infinite; pointer-events: none;
+}
+@keyframes miniBtnSpin{ to{ transform: rotate(360deg); } }
+
+#mp3-player-modal {
+  position: fixed; bottom: 30px; left: 30px; width: 340px; max-width: calc(100vw - 40px);
+  background: var(--card); border: 4px solid var(--ink);
+  box-shadow: 12px 12px 0px var(--ink); z-index: 1100;
+  padding: 20px; display: none; flex-direction: column;
+  font-family: var(--font-mono);
+}
+.mp3-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--ink); padding-bottom: 12px; margin-bottom: 18px; }
+.mp3-title { font-weight: 900; font-size: 1.1rem; color: var(--ink); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+.mp3-title::before{ content:''; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(236,21,96,0.2); animation: mp3TitlePulse 1.4s ease-in-out infinite; }
+@keyframes mp3TitlePulse{ 0%,100%{ opacity: 1; } 50%{ opacity: 0.35; } }
+.mp3-close { background: #fff; border: 2px solid var(--ink); font-weight: 900; cursor: pointer; padding: 4px 10px; transition: 0.2s; }
+.mp3-close:hover { background: var(--accent); color: #fff; }
+
+.mp3-cover-art {
+  width: 100%; height: 200px; border: 3px solid var(--ink); margin-bottom: 18px;
+  background: repeating-linear-gradient(45deg, #1a0a10, #1a0a10 10px, #2a1a20 10px, #2a1a20 20px);
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+.mp3-cover-art::before{
+  content:''; position:absolute; inset:0; z-index: 3; pointer-events:none;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
+}
+.css-vinyl {
+  width: 150px; height: 150px; border-radius: 50%; background: #0b0c10;
+  border: 4px solid #333; position: relative; animation: spinVinyl 4s linear infinite;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.9), 5px 5px 15px rgba(0,0,0,0.5);
+  animation-play-state: paused;
+}
+.css-vinyl::before {
+  content: ''; position: absolute; inset: 15px; border-radius: 50%;
+  border: 1px solid #444; background: repeating-radial-gradient(circle, transparent, transparent 4px, #1a1a1a 5px);
+}
+.css-vinyl-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 50px; height: 50px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: 3px solid #fff; transition: background 0.5s ease;
+}
+.css-vinyl-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: #0b0c10; border-radius: 50%; border: 1px solid #333; }
+@keyframes spinVinyl { 100% { transform: rotate(360deg); } }
+
+.mp3-timeline-container { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; font-size: 0.8rem; font-weight: 700; color: var(--ink); }
+.mp3-timeline { flex: 1; height: 10px; background: #e0e0e0; border: 2px solid var(--ink); position: relative; cursor: pointer; box-shadow: inset 2px 2px 0px rgba(0,0,0,0.12); }
+.mp3-timeline-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.1s linear; }
+.mp3-timeline-fill::after{
+  content:''; position:absolute; right:-5px; top:50%; transform: translateY(-50%); width: 10px; height: 10px;
+  background: #fff; border: 2px solid var(--ink); border-radius: 50%; opacity: 0; transition: opacity 0.2s ease;
+}
+.mp3-timeline:hover .mp3-timeline-fill::after{ opacity: 1; }
+.mp3-main-controls { display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 18px; }
+.mp3-main-controls .mp3-btn { width: 50px; height: 50px; font-size: 0; border-width: 3px; border-radius: 50%; }
+.mp3-main-controls .mp3-btn svg{ width: 20px; height: 20px; fill: currentColor; }
+#player-play { width: 62px !important; height: 62px !important; background: var(--accent) !important; color: var(--card) !important; box-shadow: 3px 3px 0 var(--ink); }
+#player-play:hover{ background: var(--ink) !important; }
+#player-play svg{ width: 24px !important; height: 24px !important; }
+.mp3-volume { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+.mp3-volume svg{ width: 16px; height: 16px; fill: var(--ink); flex-shrink: 0; }
+.mp3-vol-slider { flex: 1; -webkit-appearance: none; height: 8px; background: var(--ink); outline: none; border-radius: 4px; }
+.mp3-vol-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; background: var(--accent-2); border: 2px solid var(--ink); cursor: pointer; border-radius: 50%; box-shadow: 2px 2px 0 rgba(16,2,31,0.3); }
+.mp3-vol-slider::-moz-range-thumb { width: 18px; height: 18px; background: var(--accent-2); border: 2px solid var(--ink); cursor: pointer; border-radius: 50%; }
+
+/* ===== MP3 PLAYER: REDISEÑO COMPLETO ===== */
+.mp3-cover-art{ width: 200px; height: 200px; margin: 0 auto 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3), 4px 4px 0 var(--ink); }
+#album-art{ width: 100%; height: 100%; display: block; }
+.mp3-playlist{ margin-top: 16px; border-top: 2px dashed var(--ink); padding-top: 12px; max-height: 160px; overflow-y: auto; }
+.mp3-playlist-header{ font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px; font-weight: 700; }
+.mp3-playlist-items{ display: flex; flex-direction: column; gap: 2px; }
+.mp3-playlist-item{ display: flex; align-items: center; gap: 10px; padding: 8px 10px; cursor: pointer; border-radius: 3px; transition: background 0.15s ease; font-family: var(--font-display); }
+.mp3-playlist-item:hover{ background: rgba(var(--grain-color),0.08); }
+.mp3-playlist-item.active{ background: var(--accent-soft); }
+.mp3-playlist-item.active .pli-title{ color: var(--accent); font-weight: 900; }
+.pli-num{ font-family: var(--font-mono); font-size: 0.6rem; opacity: 0.5; flex-shrink: 0; width: 18px; }
+.pli-info{ display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.pli-title{ font-size: 0.78rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pli-artist{ font-size: 0.65rem; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mp3-player-modal{ max-height: 85vh; overflow-y: auto; }
+#mp3-player-modal::-webkit-scrollbar{ width: 6px; }
+#mp3-player-modal::-webkit-scrollbar-thumb{ background: var(--accent); border-radius: 3px; }
+
+/* ===== 5. NAVEGACIÓN Y ESTRUCTURA GENERAL ===== */
+nav{
+  position: sticky; top: 16px; margin: 24px auto 14px; max-width: 520px; width: calc(100% - 32px);
+  background: var(--card); border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+  display: flex; justify-content: space-around; padding: 8px; z-index: 100;
+  transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
+  position: sticky; top: 16px;
+  overflow: hidden;
+}
+/* barrita neón en el borde superior del menú */
+nav::after{
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 25%, var(--accent) 50%, var(--accent-2) 75%, var(--accent) 100%);
+  background-size: 200% 100%; animation: navStrip 5s linear infinite;
+}
+@keyframes navStrip{ from{ background-position: 200% 0; } to{ background-position: -200% 0; } }
+.tab-btn{
+  flex: 1; background: transparent; border: var(--border-w) solid var(--ink); color: var(--ink);
+  padding: 11px 10px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+  box-shadow: 3px 3px 0px var(--shadow-color); outline: none;
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1); letter-spacing: 0.04em;
+  font-family: var(--font-display);
+  position: relative;
+}
+.tab-btn + .tab-btn{ margin-left: 8px; }
+.tab-btn::before{
+  content: attr(data-num);
+  display: inline-block; font-family: var(--font-mono); font-size: 0.6rem;
+  color: var(--accent); font-weight: 700; margin-right: 6px; opacity: 0.85;
+}
+.tab-btn:hover { transform: translateY(-3px); box-shadow: 5px 5px 0px var(--shadow-color); }
+.tab-btn.active{
+  background: var(--accent); color: var(--card); transform: translateY(0); box-shadow: 2px 2px 0px var(--shadow-color);
+  border-color: var(--ink);
+}
+.tab-btn.active::before{ color: var(--accent-2); }
+.tab-btn.active::after{
+  content: ''; position: absolute; left: 6px; right: 6px; bottom: -3px; height: 3px;
+  background: var(--accent-2); animation: tabWiggle 2.2s ease-in-out infinite;
+}
+@keyframes tabWiggle { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.tab-btn:focus-visible{ outline: 3px solid var(--accent-2); outline-offset: 2px; }
+
+.container{ max-width: 800px; margin: 30px auto; padding: 0 20px; position: relative; z-index: 1; }
+.tab-content{ display: none; }
+.tab-content.active{ display: block; animation: tabFadeIn 0.5s ease; }
+@keyframes tabFadeIn{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: translateY(0); } }
+.window-card{
+  background: var(--card); border: var(--border-w) solid var(--ink);
+  box-shadow: 7px 7px 0px var(--shadow-color), 12px 12px 0px rgba(var(--grain-color),0.08);
+  margin-bottom: 30px; overflow: hidden; position: relative;
+  transition: background 0.6s ease, border-color 0.6s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+  background-image:
+    linear-gradient(160deg, rgba(255,255,255,0.05) 0%, transparent 45%),
+    radial-gradient(rgba(var(--grain-color),0.03) 1px, transparent 1.6px),
+    var(--card);
+  background-size: 100% 100%, 24px 24px, 100% 100%;
+}
+.window-card::before,
+.window-card::after {
+  content: ''; position: absolute; width: 26px; height: 26px; z-index: 5; pointer-events: none;
+  background:
+    linear-gradient(var(--accent), var(--accent)) top left / 5px 3px,
+    linear-gradient(var(--accent), var(--accent)) top left / 3px 5px;
+  background-repeat: no-repeat; opacity: 0.9;
+}
+.window-card::before { top: 46px; left: 12px; }
+.window-card::after {
+  top: 46px; right: 12px;
+  background:
+    linear-gradient(var(--accent), var(--accent)) top right / 5px 3px,
+    linear-gradient(var(--accent), var(--accent)) top right / 3px 5px;
+  background-repeat: no-repeat;
+}
+.window-card:hover { transform: translateY(-4px) rotate(-0.15deg); box-shadow: 10px 10px 0px var(--shadow-color), 15px 15px 0px rgba(var(--grain-color),0.1); }
+.window-header{
+  background: var(--accent); border-bottom: var(--border-w) solid var(--ink);
+  padding: 13px 18px; display: flex; justify-content: space-between; align-items: center;
+  font-weight: 700; font-size: 0.82rem; color: var(--card); font-family: var(--font-mono); letter-spacing: 0.03em;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 6px, transparent 6px 12px),
+    linear-gradient(to bottom, rgba(255,255,255,0.16), transparent 60%);
+  position: relative;
+}
+.window-header::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-2), transparent);
+  opacity: 0.5; pointer-events: none;
+}
+.window-dots{ display: flex; gap: 6px; }
+.dot{ width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); transition: transform 0.2s ease; }
+.window-card:hover .dot { transform: scale(1.15); }
+.dot-red{ background: #ff5f56; }
+.dot-yellow{ background: #ffbd2e; }
+.dot-green{ background: #27c93f; }
+.window-body{ padding: 38px 34px; position: relative; }
+
+/* ===== 6. PESTAÑA COOKY — Carta ===== */
+.letter-eyebrow{
+  display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.18em;
+  text-transform: uppercase; background: var(--accent-soft); border: 2px solid var(--ink); padding: 5px 12px; margin-bottom: 18px;
+  font-weight: 700; box-shadow: 3px 3px 0 var(--shadow-color); transform: rotate(-1deg);
+  animation: eyebrowBreath 3s ease-in-out infinite;
+}
+@keyframes eyebrowBreath { 0%,100% { transform: rotate(-1deg) translateY(0); } 50% { transform: rotate(-1deg) translateY(-2px); } }
+.letter-eyebrow::before{ content: '✦ '; color: var(--accent); }
+.letter-eyebrow::after{ content: ' ✦'; color: var(--accent); }
+.letter-title{
+  font-family: var(--font-serif); font-style: italic; font-weight: 500;
+  font-size: 3.1rem; line-height: 1.05; color: var(--accent); margin-bottom: 10px;
+  letter-spacing: -0.01em;
+  text-shadow: 3px 3px 0 rgba(var(--grain-color),0.12);
+}
+.letter-title-sub{
+  font-family: var(--font-hand); font-weight: 400; font-size: 2.2rem; margin-bottom: 28px; color: var(--ink);
+  transform: rotate(-1deg); display: inline-block;
+  position: relative; padding-bottom: 8px;
+}
+.letter-title-sub::after{
+  content: ''; position: absolute; left: 2px; right: -8px; bottom: 0; height: 5px;
+  background:
+    radial-gradient(circle at 8px -2px, transparent 6px, var(--accent) 6px, var(--accent) 7px, transparent 8px);
+  background-size: 16px 10px; background-repeat: repeat-x;
+  opacity: 0.7; transform: rotate(0.5deg);
+}
+.story-container{ display: flex; flex-direction: column; gap: 0; }
+.story-text-block{ padding: 10px 0 40px; opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.story-text-block.in-view{ opacity: 1; transform: translateY(0); }
+.story-text-block p{ line-height: 1.85; font-size: 1.08rem; font-weight: 500; margin-bottom: 16px; letter-spacing: 0.005em; }
+.story-text-block:first-of-type p:first-of-type::first-letter{
+  font-family: var(--font-serif); font-style: italic; font-weight: 700; font-size: 3.6rem; float: left; line-height: 0.75;
+  padding-right: 10px; padding-top: 8px; color: var(--accent);
+}
+.story-chapter-label{
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent); opacity: 0.85; margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+  font-weight: 700;
+}
+.story-chapter-label::before{ content: '▚'; font-size: 0.9rem; color: var(--accent-2); opacity: 0.8; }
+.story-chapter-label::after{ content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.3; }
+.story-frame{
+  position: relative; width: 100%; height: 340px; margin: 14px 0 42px;
+  border: var(--border-w) solid var(--ink);
+  box-shadow: 7px 7px 0px var(--shadow-color), 0 14px 30px -14px rgba(var(--grain-color),0.5);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 42%, var(--accent-soft), transparent 70%),
+    repeating-linear-gradient(45deg, transparent 0 13px, rgba(var(--grain-color),0.04) 13px 14px),
+    linear-gradient(135deg, var(--accent-soft), var(--bg-2));
+}
+.story-frame::before,
+.story-frame::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 18px; z-index: 4; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, var(--ink) 0 8px, var(--card) 8px 16px);
+  opacity: 0.92;
+}
+.story-frame::before { left: 0; border-right: 2px solid var(--ink); }
+.story-frame::after { right: 0; border-left: 2px solid var(--ink); }
+.story-frame-caption{
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 16px;
+  background: linear-gradient(to top, rgba(15,6,10,0.9), rgba(15,6,10,0.15));
+  color: #fffaf9; font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.04em; z-index: 4; transform: translateY(100%); transition: transform 0.5s ease 0.3s;
+  display: flex; align-items: center; gap: 10px;
+}
+.story-frame-caption::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--accent-2); box-shadow: 0 0 0 2px rgba(0,0,0,0.4), 0 0 8px var(--accent-2);
+}
+.story-frame.in-view .story-frame-caption{ transform: translateY(0); }
+.story-frame-media{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 3; }
+.story-frame-placeholder{
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--ink); text-align: center; padding: 20px; z-index: 2;
+  animation: placeholderBreath 5.5s ease-in-out infinite;
+}
+.story-frame-placeholder::before{
+  content:''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 46%, var(--accent-soft), transparent 62%),
+    radial-gradient(circle, var(--accent) 1px, transparent 1.5px);
+  background-size: auto, 18px 18px;
+  opacity: 0.55;
+}
+.story-frame-placeholder::after{
+  content:''; position: absolute; inset: 18px; pointer-events: none; opacity: 0.45;
+  background:
+    linear-gradient(var(--ink), var(--ink)) top left / 16px 3px,
+    linear-gradient(var(--ink), var(--ink)) top left / 3px 16px,
+    linear-gradient(var(--ink), var(--ink)) top right / 16px 3px,
+    linear-gradient(var(--ink), var(--ink)) top right / 3px 16px,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 16px 3px,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 3px 16px,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 16px 3px,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 3px 16px;
+  background-repeat: no-repeat;
+}
+@keyframes placeholderBreath{ 0%,100%{ opacity:0.75; transform: scale(1); } 50%{ opacity:1; transform: scale(1.012); } }
+.story-frame-placeholder svg{ width: 44px; height: 44px; opacity: 0.75; filter: drop-shadow(0 2px 0 rgba(var(--grain-color),0.25)); animation: placeholderFloat 3.5s ease-in-out infinite; }
+@keyframes placeholderFloat { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(-2deg); } }
+.story-frame[data-reveal="curtain"] .story-frame-media{ clip-path: inset(50% 0 50% 0); transition: clip-path 1s cubic-bezier(0.65,0,0.35,1), opacity 0.3s ease; }
+.story-frame[data-reveal="curtain"].in-view .story-frame-media{ clip-path: inset(0 0 0 0); opacity: 1; }
+.story-frame[data-reveal="focus"] .story-frame-media{ transform: scale(1.35); filter: blur(14px); transition: transform 1.1s ease, filter 1.1s ease, opacity 0.4s ease; }
+.story-frame[data-reveal="focus"].in-view .story-frame-media{ transform: scale(1); filter: blur(0); opacity: 1; }
+.story-frame[data-reveal="wipe"] .story-frame-media{ clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); transition: clip-path 0.9s cubic-bezier(0.76,0,0.24,1), opacity 0.3s ease; }
+.story-frame[data-reveal="wipe"].in-view .story-frame-media{ clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+.story-frame[data-reveal="finale"]{ height: 420px; }
+.story-frame[data-reveal="finale"] .story-frame-media{ transform: scale(1.15); opacity: 0; transition: transform 1.4s cubic-bezier(0.16,1,0.3,1), opacity 0.9s ease; }
+.story-frame[data-reveal="finale"].in-view .story-frame-media{ transform: scale(1); opacity: 1; }
+.story-frame[data-reveal="finale"]::before{
+  content:''; position: absolute; inset: 0; background: #fff; z-index: 5; opacity: 1;
+  pointer-events: none; transition: opacity 0.6s ease 0.15s;
+}
+.story-frame[data-reveal="finale"].in-view::before{ opacity: 0; }
+.letter-signature{
+  margin-top: 10px; padding-top: 20px; border-top: 2px dashed var(--ink);
+  display: flex; justify-content: space-between; align-items: flex-end;
+  opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.letter-signature.in-view{ opacity: 1; transform: translateY(0); }
+.letter-signature-text{ font-family: var(--font-hand); font-size: 2.3rem; color: var(--accent); transform: rotate(-1.5deg); display: inline-block; }
+.mini-vinyl{
+  width: 60px; height: 60px; border-radius: 50%;
+  background: repeating-radial-gradient(circle, var(--ink) 0px, var(--ink) 1.5px, transparent 2px, transparent 6px);
+  border: 3px solid var(--ink); position: relative; flex-shrink: 0; animation: legendarySpin 4s linear infinite;
+  box-shadow: inset 0 0 8px rgba(var(--grain-color),0.35);
+}
+.mini-vinyl::before{
+  content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 40%);
+}
+.mini-vinyl::after{
+  content:''; position: absolute; inset: 0; margin: auto; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--accent); border: 2px solid var(--card);
+}
+
+/* ===== 7. PESTAÑA JOJI — Amigos ===== */
+.joji-heading{ font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 8px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.joji-heading::after{ content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.35; }
+.joji-title{
+  font-family: var(--font-serif); font-style: italic; font-weight: 500;
+  font-size: 2.1rem; margin-bottom: 30px; color: var(--ink); letter-spacing: -0.01em;
+  text-shadow: 2px 2px 0 rgba(var(--grain-color),0.12);
+}
+.friends-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 34px; padding-top: 10px; }
+.friend-card{
+  background: #fdfbf7; color: #1a1a1a; padding: 14px 14px 24px 14px;
+  border: 1px solid rgba(0,0,0,0.1); box-shadow: 4px 6px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.05);
+  cursor: pointer; position: relative; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  background-image: linear-gradient(160deg, #fffdf9 0%, #f6f1ea 100%);
+}
+.friend-card:hover { transform: scale(1.05) translateY(-5px) rotate(0deg) !important; box-shadow: 8px 14px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.05); z-index: 10; }
+.friend-card::before{
+  content:''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+  width: 85px; height: 28px; background: rgba(255, 255, 255, 0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  backdrop-filter: blur(2px); border-left: 2px dashed rgba(255,255,255,0.6); border-right: 2px dashed rgba(255,255,255,0.6); z-index: 3;
+  opacity: 0.85; transition: opacity 0.3s ease;
+}
+.friend-card:hover::before{ opacity: 1; }
+.friend-card::after{
+  content: attr(data-stamp);
+  position: absolute; bottom: 8px; right: 10px; font-family: var(--font-mono); font-size: 0.55rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: rgba(0,0,0,0.4);
+  transform: rotate(-8deg);
+}
+.friend-card:nth-child(2n)::before{ transform: translateX(-50%) rotate(4deg); }
+.friend-card:nth-child(odd){ transform: rotate(-2deg); }
+.friend-card:nth-child(even){ transform: rotate(2deg); }
+.friend-photo{
+  width: 100%; height: 180px; border: 1px solid rgba(0,0,0,0.8); margin-bottom: 16px; position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, #3a3a44 0 30%, #22222b 31%),
+    linear-gradient(135deg, #2a2a2a, #111);
+  display: flex; align-items: center; justify-content: center;
+}
+.friend-photo img{ width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.friend-card:hover .friend-photo img{ transform: scale(1.06); }
+/* Medallón de avatar diseñado: fallback que se muestra si la foto no carga (o no está puesta todavía) */
+.friend-photo::before{
+  content: attr(data-initial);
+  position: absolute; left: 50%; top: 43%; transform: translate(-50%, -50%);
+  width: 96px; height: 96px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-serif); font-style: italic; font-weight: 700; font-size: 3.4rem; line-height: 1;
+  color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.8), 0 6px 0 rgba(0,0,0,0.25), inset 0 6px 12px rgba(255,255,255,0.4), inset 0 -10px 18px rgba(0,0,0,0.22);
+  z-index: 1;
+}
+.friend-card:nth-child(odd) .friend-photo::before{ animation: medallionFloat 5s ease-in-out infinite; }
+.friend-card:nth-child(even) .friend-photo::before{ animation: medallionFloat 6.2s ease-in-out 0.9s infinite; }
+@keyframes medallionFloat{
+  0%,100%{ transform: translate(-50%, calc(-50% - 2px)); }
+  50%{ transform: translate(-50%, calc(-50% + 3px)); }
+}
+.friend-photo::after{ content:''; position: absolute; inset: 0; box-shadow: inset 0 0 40px rgba(0,0,0,0.4); pointer-events: none; z-index: 2;}
+.friend-card h3{ font-family: var(--font-hand); font-weight: 700; font-size: 2.2rem; line-height: 1; margin-bottom: 4px; color: #b0233b; transform: rotate(-1deg); }
+.friend-card p{ font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; line-height: 1.4; color: #333; }
+
+/* ===== 8. PESTAÑA BRAWL — Canje de códigos ===== */
+.brawl-title{
+  font-weight: 900; font-size: 2.2rem; text-align: center; letter-spacing: 0.02em;
+  text-shadow: 3px 3px 0px var(--ink), 6px 6px 0px rgba(16,2,31,0.25);
+  color: var(--accent-2); -webkit-text-stroke: 1.5px var(--ink); transform: rotate(-1deg);
+  animation: brawlTitleBob 3.5s ease-in-out infinite;
+}
+@keyframes brawlTitleBob { 0%,100% { transform: rotate(-1deg) translateY(0); } 50% { transform: rotate(-1deg) translateY(-3px); } }
+.brawl-sub{ text-align: center; font-weight: 700; font-size: 0.95rem; margin-top: 14px; margin-bottom: 28px; color: var(--ink); opacity: 0.85; }
+.code-input-group{
+  display: flex; gap: 0; justify-content: center; margin: 0 0 26px; flex-wrap: wrap;
+  background: #fff; border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0px var(--shadow-color); border-radius: 4px; overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.code-input-group:focus-within{ box-shadow: 6px 6px 0px var(--shadow-color), 0 0 0 4px rgba(255,214,10,0.35); transform: translateY(-2px); }
+.code-input{
+  padding: 14px 18px; border: none; background: transparent; color: #10021f;
+  font-weight: 900; font-size: 1.05rem; outline: none; text-transform: uppercase;
+  min-width: 180px; font-family: var(--font-mono); letter-spacing: 0.1em;
+  flex: 1 1 auto;
+  transition: background 0.15s;
+}
+.code-input::placeholder{ color: #10021f; opacity: 0.35; letter-spacing: 0.12em; font-size: 0.9rem; }
+.code-input:focus-visible{ background: #fdf6ff; }
+.code-btn{
+  padding: 14px 30px; background: #ffd166; color: var(--ink); font-weight: 900;
+  border: none; border-left: var(--border-w) solid var(--ink); cursor: pointer;
+  transition: all 0.2s ease; font-family: var(--font-display); font-size: 1rem;
+  letter-spacing: 0.04em; position: relative; overflow: hidden;
+}
+.code-btn::after{
+  content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: skewX(-20deg); transition: left 0.4s ease; pointer-events: none;
+}
+.code-btn:hover::after{ left: 120%; }
+.code-btn::before{
+  content: '\1F511'; position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 1rem; opacity: 0;
+}
+.code-btn:hover { background: #ffbe30; transform: translateX(2px); }
+.code-btn:active{ transform: translate(2px, 0); background: #f0b429; }
+.code-btn:focus-visible{ outline: 3px solid var(--accent); outline-offset: -3px; }
+.code-hint{
+  display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+  color: var(--ink); opacity: 0.85; margin: 0 0 24px; padding: 7px 14px;
+  border: 2px dashed var(--ink); background: var(--accent-soft);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  cursor: pointer; transform: rotate(-1.5deg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.code-hint::before{ content: '💡 '; }
+.code-hint:hover{ transform: rotate(-1.5deg) translateY(-1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+.code-hint:focus-visible{ outline: 3px solid var(--accent); outline-offset: 2px; }
+#coupon-progress{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border: 2px solid var(--ink); background: var(--accent-soft);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+#coupon-progress::before{ content: '🎟'; font-size: 0.9rem; }
+.unlocked-coupons{ display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 26px 18px; perspective: 1000px; }
+
+/* ===== TARJETA CUPÓN — forma de vale real: muescas laterales + borde perforado + línea de corte ===== */
+.coupon-card{
+  position: relative; padding: 26px 22px 22px; border: var(--border-w) solid #10021f; font-weight: 900;
+  box-shadow: 6px 6px 0px #10021f; font-size: 0.95rem; line-height: 1.4; cursor: pointer; overflow: visible; isolation: isolate;
+  transform-style: preserve-3d; transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.35s ease, opacity 0.3s ease; opacity: 0;
+  font-family: var(--font-display); border-radius: 3px;
+}
+.coupon-card.visible{ opacity: 1; }
+.coupon-card:hover { transform: translateY(-4px) rotate(-0.5deg); box-shadow: 10px 10px 0px #10021f, 0 14px 24px -12px rgba(0,0,0,0.5); z-index: 10; }
+/* muescas circulares tipo boleto de cine, a la izquierda y derecha */
+.coupon-card::before{
+  content:''; position: absolute; top: 50%; left: -12px; width: 22px; height: 22px; transform: translateY(-50%);
+  background: var(--bg, #f4f0ff); border: var(--border-w) solid #10021f; border-radius: 50%; z-index: 6;
+  transition: background 0.6s ease;
+}
+.coupon-card .coupon-notch-right{
+  content:''; position: absolute; top: 50%; right: -12px; width: 22px; height: 22px; transform: translateY(-50%);
+  background: var(--bg, #f4f0ff); border: var(--border-w) solid #10021f; border-radius: 50%; z-index: 6;
+  transition: background 0.6s ease;
+}
+/* línea de corte punteada horizontal a la altura de las muescas */
+.coupon-card .coupon-perf-line{
+  position: absolute; top: 50%; left: 6px; right: 6px; border-top: 2.5px dashed rgba(16,2,31,0.28);
+  z-index: 3; pointer-events: none;
+}
+.coupon-card .coupon-icon{ font-size: 2.3rem; display: block; margin-bottom: 8px; color: currentColor; z-index: 2; position: relative; width: 1em; height: 1em; }
+.coupon-card .coupon-icon svg, #modalIcon svg, .admin-icon svg { width: 1em; height: 1em; fill: currentColor; }
+.coupon-card .coupon-label{ font-size: 0.65rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; display: block; margin-bottom: 4px; z-index: 2; position: relative;}
+.coupon-card strong { z-index: 2; position: relative; display: block; font-size: 1rem; color: #10021f;}
+.coupon-card .coupon-remove{ position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: 2px solid #10021f; background: #fff; color: #10021f; font-weight: 900; font-size: 0.8rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 15; transition: background 0.2s, transform 0.2s; }
+.coupon-card .coupon-remove:hover { background: #ff3b5c; color: #fff; transform: scale(1.1); }
+.coupon-card .rarity-tag{ position: absolute; top: 8px; left: 8px; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 8px; border: 1.5px solid #10021f; z-index: 5; font-weight: 700; }
+.coupon-card .coupon-code-stub{
+  margin-top: 12px; padding-top: 10px; border-top: 2px dashed rgba(16,2,31,0.28);
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; z-index: 2; position: relative;
+}
+
+/* Entrada de cupones al desbloquear: "salen impresas" con un ligero efecto de corte de guillotina */
+@keyframes couponPrintIn{
+  0%{ clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(-14px) scale(0.96); }
+  55%{ clip-path: inset(0 0 0% 0); opacity: 1; }
+  100%{ clip-path: inset(0 0 0% 0); opacity: 1; transform: translateY(0) scale(1); }
+}
+.coupon-card.coupon-print-in{ animation: couponPrintIn 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+
+.coupon-card.rarity-epico{ background: linear-gradient(155deg, #ffe4e6 0%, #fda4af 100%); border-color: #881337; }
+.coupon-card.rarity-epico::before, .coupon-card.rarity-epico .coupon-notch-right{ border-color: #881337; }
+.coupon-card.rarity-epico .rarity-tag{ background: #e11d48; color: #fff; border-color: #881337; }
+.coupon-card.rarity-epico .coupon-icon { color: #e11d48; }
+.coupon-card.rarity-epico:hover{ transform: translateY(-6px) scale(1.03) rotate(-0.6deg); animation: heartbeat 0.8s infinite alternate; }
+@keyframes heartbeat { 0% { transform: translateY(-6px) scale(1.03) rotate(-0.6deg); box-shadow: 6px 6px 0px #881337; } 100% { transform: translateY(-7px) scale(1.05) rotate(0.6deg); box-shadow: 10px 10px 0px #881337, 0 0 15px rgba(225,29,72,0.5); } }
+
+.coupon-card.rarity-especial{ background: linear-gradient(155deg, #e0f2fe 0%, #7dd3fc 100%); border-color: #0c4a6e; position: relative; }
+.coupon-card.rarity-especial::before, .coupon-card.rarity-especial .coupon-notch-right{ border-color: #0c4a6e; }
+.coupon-card.rarity-especial .rarity-tag{ background: #0284c7; color: #fff; border-color: #0c4a6e; }
+.coupon-card.rarity-especial .coupon-icon { color: #0284c7; }
+.coupon-card.rarity-especial .coupon-filmstrip{ position: absolute; inset: -4px; border: 4px dashed rgba(12, 74, 110, 0.35); z-index: 1; pointer-events: none; background-image: none; animation: filmStrip 3s linear infinite; }
+.coupon-card.rarity-especial:hover{ transform: translateY(-6px) scale(1.02); box-shadow: 8px 8px 0px #0c4a6e, 0 10px 20px rgba(14,165,233,0.4); }
+@keyframes filmStrip { 100% { transform: translateY(-10px); } }
+
+.coupon-card.rarity-super-raro{ background: linear-gradient(155deg, #ffd6f0 0%, #ff7ad1 100%); border-color: #7a0a52; box-shadow: 6px 6px 0px #7a0a52; }
+.coupon-card.rarity-super-raro::before, .coupon-card.rarity-super-raro .coupon-notch-right{ border-color: #7a0a52; }
+.coupon-card.rarity-super-raro .rarity-tag{ background: #ec1789; color: #fff; border-color: #7a0a52; }
+.coupon-card.rarity-super-raro .coupon-icon { color: #ec1789; }
+.coupon-card.rarity-super-raro .sparkle-cluster{ position: absolute; bottom: 8px; right: 10px; display: flex; gap: 7px; align-items: flex-end; z-index: 2; }
+.coupon-card.rarity-super-raro .sparkle-cluster span{ display: block; width: 7px; height: 7px; background: rgba(255,255,255,0.75); transform: rotate(45deg); animation: floatSparkle 2.6s ease-in-out infinite; }
+.coupon-card.rarity-super-raro .sparkle-cluster span:nth-child(1){ animation-delay: 0s; width: 9px; height: 9px; }
+.coupon-card.rarity-super-raro .sparkle-cluster span:nth-child(2){ animation-delay: 0.4s; transform: translateY(4px) rotate(45deg); }
+.coupon-card.rarity-super-raro .sparkle-cluster span:nth-child(3){ animation-delay: 0.8s; width: 5px; height: 5px; }
+.coupon-card.rarity-super-raro::after{ content:''; position:absolute; inset:0; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%); background-size: 250% 250%; background-position: -100% -100%; z-index: 2; pointer-events: none; mix-blend-mode: overlay; animation: superRaroShine 3.2s ease-in-out infinite; }
+@keyframes superRaroShine{ 0%,15%{ background-position: -100% -100%; } 50%,100%{ background-position: 150% 150%; } }
+.coupon-card.rarity-super-raro:hover{ transform: translateY(-8px) rotate(-1deg); box-shadow: 10px 10px 0px #7a0a52, 0 0 25px rgba(255,60,190,0.6); }
+
+.coupon-card.rarity-mitico{ background: linear-gradient(155deg, #ffe8b0 0%, #ff9f43 100%); border-color: #7a3800; box-shadow: 6px 6px 0px #7a3800; animation: mysticPulse 2s ease-in-out infinite; }
+.coupon-card.rarity-mitico::before, .coupon-card.rarity-mitico .coupon-notch-right{ border-color: #7a3800; }
+.coupon-card.rarity-mitico .rarity-tag{ background: #ea580c; color: #fff; border-color: #7a3800; }
+.coupon-card.rarity-mitico .coupon-icon { color: #ea580c; animation: mysticIconFloat 2s ease-in-out infinite; }
+@keyframes mysticIconFloat{ 0%,100%{ transform: translateY(0) rotate(0deg); } 50%{ transform: translateY(-3px) rotate(-4deg); } }
+.coupon-card.rarity-mitico:hover{ transform: scale(1.04) translateY(-5px); animation: none; box-shadow: 8px 8px 0px #7a3800, 0 0 30px rgba(255,159,67,0.8); }
+@keyframes mysticPulse{ 0%, 100%{ box-shadow: 6px 6px 0px #7a3800, 0 0 0px rgba(255,159,67,0); } 50%{ box-shadow: 6px 6px 0px #7a3800, 0 0 20px rgba(255,159,67,0.6); } }
+
+.coupon-card.rarity-legendario{ background: linear-gradient(120deg, #ffd6f0, #ffe8b0, #cdeeff, #d6ffe0, #ffd6f0); background-size: 400% 400%; animation: legendaryShift 5s ease infinite; border-color: #10021f; box-shadow: 6px 6px 0px #10021f, 0 0 30px rgba(255,255,255,0.6); color: #10021f; }
+.coupon-card.rarity-legendario::before, .coupon-card.rarity-legendario .coupon-notch-right{ border-color: #10021f; }
+.coupon-card.rarity-legendario .rarity-tag{ background: #10021f; color: #ffd60a; border-color: #ffd60a; }
+.coupon-card.rarity-legendario .coupon-shimmer{ content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.35) 15deg, transparent 30deg); animation: legendarySpin 4s linear infinite; pointer-events: none; z-index: 1; }
+.coupon-card.rarity-legendario * { z-index: 2; position: relative; color: #10021f !important; }
+.coupon-card.rarity-legendario .coupon-icon { color: #10021f !important; }
+.coupon-card.rarity-legendario strong { color: #10021f !important; }
+.coupon-card.rarity-legendario:hover { transform: scale(1.08) translateY(-5px); box-shadow: 12px 12px 0px #10021f, 0 0 45px rgba(255,255,255,0.9); }
+
+.coupon-card.rarity-ultralegendario{ background: #10021f; border-color: #ffd60a; box-shadow: 6px 6px 0px #ffd60a, 0 0 35px rgba(255,214,10,0.9); }
+.coupon-card.rarity-ultralegendario::before, .coupon-card.rarity-ultralegendario .coupon-notch-right{ border-color: #ffd60a; background: #10021f; }
+.coupon-card.rarity-ultralegendario .rarity-tag{ background: #ffd60a; color: #10021f; border-color: #ffd60a; }
+.coupon-card.rarity-ultralegendario .coupon-shimmer{ content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,214,10,0.5) 20deg, transparent 40deg); animation: legendarySpin 3s linear infinite; pointer-events: none; z-index: 1; }
+.coupon-card.rarity-ultralegendario * { z-index: 2; position: relative; color: #fff !important; text-shadow: 1px 1px 0px #10021f; }
+.coupon-card.rarity-ultralegendario .coupon-icon { color: #ffd60a !important; filter: drop-shadow(0 0 6px rgba(255,214,10,0.9)); animation: ultraIconSpin 3.5s ease-in-out infinite; }
+@keyframes ultraIconSpin{ 0%,100%{ transform: scale(1) rotate(0deg); } 50%{ transform: scale(1.12) rotate(6deg); } }
+.coupon-card.rarity-ultralegendario strong { color: #fff !important; }
+.coupon-card.rarity-ultralegendario .coupon-remove{ background: #fff; color: #10021f; border-color: #ffd60a;}
+.coupon-card.rarity-ultralegendario:hover { transform: scale(1.1) translateY(-6px); box-shadow: 10px 10px 0px #ffd60a, 0 0 60px rgba(255,214,10,1); }
+
+@keyframes legendaryShift{ 0%{ background-position: 0% 50%; } 50%{ background-position: 100% 50%; } 100%{ background-position: 0% 50%; } }
+@keyframes legendarySpin{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg); } }
+@keyframes floatSparkle{ 0%, 100%{ transform: translateY(0) rotate(0deg); opacity: 0.6; } 50%{ transform: translateY(-5px) rotate(6deg); opacity: 1; } }
+.empty-state{ text-align: center; padding: 30px 10px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink); opacity: 0.55; border: 2px dashed var(--ink); grid-column: 1 / -1; background: rgba(255,255,255,0.18); }
+
+
+/* ===== 9. MODALES (Cupón y Brawl Box) ===== */
+.modal-overlay{ position: fixed; inset: 0; background: rgba(10, 5, 15, 0.75); backdrop-filter: blur(4px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;}
+.modal-overlay.visible{ pointer-events: auto; }
+.modal-card{ position: relative; max-width: 400px; width: 100%; background: var(--card, #fff6f9); border: 4px solid #10021f; box-shadow: 12px 12px 0px #10021f; padding: 40px 32px 32px; text-align: center; }
+.modal-close{ position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: 2px solid #10021f; background: #fff; color: #10021f; font-weight: 900; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s ease; z-index: 10; }
+.modal-close:hover{ transform: rotate(90deg) scale(1.1); }
+.modal-icon{ font-size: 4.5rem; margin-bottom: 16px; display: block; color: currentColor; width: 1em; height: 1em; margin-left: auto; margin-right: auto; }
+.modal-icon svg{ width: 1em; height: 1em; }
+.modal-label{ font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.6; margin-bottom: 12px; display: block; }
+.modal-title{ font-weight: 900; font-size: 1.6rem; margin-bottom: 16px; color: #10021f; position: relative; z-index: 2;}
+.modal-desc{ font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: #10021f; margin-bottom: 6px; position: relative; z-index: 2;}
+.modal-stamp{ margin-top: 20px; padding-top: 16px; border-top: 2px dashed #10021f; font-family: var(--font-hand); font-size: 1.7rem; color: #ff2f6e; position: relative; z-index: 2;}
+.modal-link-btn{ display: inline-block; margin-top: 20px; padding: 14px 28px; background: #1ed760; color: #10021f; font-weight: 900; text-decoration: none; border: 3px solid #10021f; box-shadow: 4px 4px 0px #10021f; font-size: 0.95rem; transition: transform 0.1s; position: relative; z-index: 2;}
+.modal-link-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #10021f; }
+.modal-rarity-badge{ display: inline-block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 12px; border: 2px solid #10021f; margin-bottom: 14px; font-weight: 700; position: relative; z-index: 2;}
+
+.modal-card.mrarity-epico{ border-color: #881337; box-shadow: 12px 12px 0px #881337; background: linear-gradient(155deg, #fff1f2, #ffe4e6); }
+.modal-card.mrarity-epico .modal-rarity-badge{ background: #e11d48; color: #fff; border-color: #881337; }
+.modal-card.mrarity-especial{ border-color: #0c4a6e; box-shadow: 12px 12px 0px #0c4a6e; background: linear-gradient(155deg, #f0f9ff, #e0f2fe); }
+.modal-card.mrarity-especial .modal-rarity-badge{ background: #0284c7; color: #fff; border-color: #0c4a6e; }
+.modal-card.mrarity-super-raro{ border-color: #7a0a52; box-shadow: 12px 12px 0px #7a0a52, 0 0 40px rgba(255,60,190,0.5); }
+.modal-card.mrarity-super-raro .modal-rarity-badge{ background: #ec1789; color: #fff; border-color: #7a0a52; }
+.modal-card.mrarity-mitico{ border-color: #7a3800; box-shadow: 12px 12px 0px #7a3800, 0 0 45px rgba(255,159,67,0.55); animation: modalMysticGlow 2.2s ease-in-out infinite; }
+.modal-card.mrarity-mitico .modal-rarity-badge{ background: #ea580c; color: #fff; border-color: #7a3800; }
+@keyframes modalMysticGlow{ 0%, 100%{ box-shadow: 12px 12px 0px #7a3800, 0 0 25px rgba(255,159,67,0.4); } 50%{ box-shadow: 12px 12px 0px #7a3800, 0 0 55px rgba(255,159,67,0.8); } }
+
+.modal-card.mrarity-legendario{ border-color: #10021f; box-shadow: 12px 12px 0px #10021f, 0 0 60px rgba(255,255,255,0.7); background: linear-gradient(135deg, #fff6f9 0%, #fff9e8 50%, #f4f0ff 100%); overflow: hidden; color: #10021f; }
+.modal-card.mrarity-legendario .modal-rarity-badge{ background: #10021f; color: #ffd60a; border-color: #ffd60a; }
+.modal-card.mrarity-legendario::after{ content:''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,214,10,0.18) 15deg, transparent 30deg); animation: legendarySpin 5s linear infinite; pointer-events: none; z-index: 1; }
+.modal-card.mrarity-legendario * { z-index: 2; position: relative; color: #10021f !important; }
+.modal-card.mrarity-legendario .modal-title, .modal-card.mrarity-legendario .modal-desc, .modal-card.mrarity-legendario .modal-stamp { color: #10021f !important; }
+.modal-card.mrarity-legendario .modal-link-btn { color: #10021f !important; border-color: #10021f; box-shadow: 4px 4px 0px #10021f;}
+.modal-card.mrarity-legendario .modal-close { background: #fff; color: #10021f; border-color: #10021f;}
+
+.modal-card.mrarity-ultralegendario{ border-color: #ffd60a; box-shadow: 12px 12px 0px #ffd60a, 0 0 80px rgba(255,214,10,0.8); background: #10021f; overflow: hidden; color: #fff; }
+.modal-card.mrarity-ultralegendario * { color: #fff !important; }
+.modal-card.mrarity-ultralegendario .modal-icon { color: #ffd60a !important; filter: drop-shadow(0 0 10px rgba(255,214,10,0.8)); }
+.modal-card.mrarity-ultralegendario .modal-title, .modal-card.mrarity-ultralegendario .modal-desc { color: #fff !important; text-shadow: 1px 1px 2px #000; }
+.modal-card.mrarity-ultralegendario .modal-label, .modal-card.mrarity-ultralegendario .modal-stamp { color: #fff !important;}
+.modal-card.mrarity-ultralegendario .modal-rarity-badge{ background: #ffd60a; color: #10021f !important; border-color: #ffd60a; }
+.modal-card.mrarity-ultralegendario::after{ content:''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,214,10,0.4) 15deg, transparent 30deg); animation: legendarySpin 3s linear infinite; pointer-events: none; z-index: 1; }
+.modal-card.mrarity-ultralegendario .modal-link-btn { background: #ffd60a; color: #10021f !important; border-color: #ffd60a; box-shadow: 4px 4px 0px #ffd60a;}
+.modal-card.mrarity-ultralegendario .modal-close { background: #fff; color: #10021f !important; border-color: #ffd60a;}
+
+.brawlbox-overlay{ position: fixed; inset: 0; background: rgba(10, 2, 30, 0.98); z-index: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; overflow: hidden; transition: opacity 0.4s ease;}
+.brawlbox-overlay.visible{ pointer-events: auto; }
+.brawlbox-rays{ position: absolute; inset: -50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,214,10,0.28) 8deg, transparent 16deg); background-size: 100% 100%; animation: rayspin 6s linear infinite; }
+@keyframes rayspin{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg); } }
+.brawlbox-stage{ position: relative; width: 240px; height: 240px; z-index: 2; }
+.brawlbox-box{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 7rem; filter: drop-shadow(0 0 40px rgba(255,214,10,0.9)); color: #ffd60a; }
+.brawlbox-glow{ position: absolute; inset: 0; margin: auto; width: 70px; height: 70px; background: #ffd60a; border-radius: 50%; filter: blur(30px); opacity: 0; }
+.brawlbox-star{ position: absolute; width: 45px; height: 45px; opacity: 0; color: #ffd60a; fill: currentColor; filter: drop-shadow(0 0 12px #ffd60a); }
+.brawlbox-text{ margin-top: 25px; font-weight: 900; color: #ffd60a; text-shadow: 4px 4px 0px #10021f; font-size: 1.8rem; letter-spacing: 0.08em; text-align: center; opacity: 0; z-index: 2; position: relative; }
+.brawlbox-skip{ position: absolute; bottom: 28px; right: 28px; background: rgba(0,0,0,0.6); border: 2px solid #ffd60a; color: #ffd60a; font-family: var(--font-mono); font-size: 0.75rem; padding: 10px 16px; cursor: pointer; z-index: 3; opacity: 0.7; transition: opacity 0.2s, background 0.2s;}
+.brawlbox-skip:hover{ opacity: 1; background: #ffd60a; color: #10021f; }
+
+/* ===== 10. TOAST ===== */
+.toast-notification{
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: var(--card); font-family: var(--font-mono); font-size: 0.8rem;
+  padding: 11px 20px; border: 2px solid var(--card); z-index: 1500; opacity: 0;
+  box-shadow: 4px 4px 0 var(--accent); letter-spacing: 0.03em;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px){
+  .letter-title{ font-size: 2rem; }
+  .letter-title-sub{ font-size: 1.6rem; }
+  .window-body{ padding: 20px 16px; }
+  .code-input-group{ flex-direction: column; }
+  .code-btn{ border-left: none; border-top: var(--border-w) solid var(--ink); }
+  .brawl-title{ font-size: 1.6rem; }
+  .joji-title{ font-size: 1.6rem; }
+  .tab-btn{ font-size: 0.78rem; padding: 12px 8px; min-height: 44px; }
+  .modal-card { padding: 35px 25px 25px; }
+  .brawlbox-stage { width: 200px; height: 200px; }
+  .brawlbox-box { font-size: 6rem; }
+  #intro-btn { font-size: 1.6rem; padding: 16px 28px;}
+  .intro-tagline{ font-size: 0.68rem; letter-spacing: 0.18em; padding: 0 20px; }
+  #mp3-player-modal { width: calc(100% - 40px); left: 20px; bottom: 20px; }
+  #mp3-notification { width: 280px; }
+  #mp3-mini-btn { top: 118px; left: 16px; width: 50px; height: 50px; }
+  #mp3-mini-btn svg { width: 20px; height: 20px; }
+  .story-frame{ height: 220px; }
+  .story-frame[data-reveal="finale"]{ height: 280px; }
+  .friends-grid{ grid-template-columns: 1fr; }
+  .unlocked-coupons{ grid-template-columns: 1fr; }
+}
+/* En celular la foto de fondo "cover" recorta al sujeto y se ve apagada: se muestra
+   completa (contain), más presente, y sin el blend que la oculta en pantallas chicas. */
+@media (max-width: 640px){
+  .theme-cooky .bg-layer::before{ background-size: 100% 100%, contain; background-position: center, center; opacity: 0.62; }
+  .theme-joji .bg-layer::before{ background-size: 100% 100%, contain; background-position: center, center; opacity: 0.75; mix-blend-mode: normal; }
+  .theme-cooky .theme-artwork, .theme-joji .theme-artwork{ opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+</style>
+</head>
+<body class="theme-cooky">
+<div class="bg-layer" id="bgLayer"></div>
+
+<!-- Artwork decorative elements per theme -->
+<div class="theme-artwork cooky-art-1" aria-hidden="true"></div>
+<div class="theme-artwork cooky-art-2" aria-hidden="true"></div>
+<div class="theme-artwork cooky-art-3" aria-hidden="true"></div>
+<div class="theme-artwork joji-art-1" aria-hidden="true"></div>
+<div class="theme-artwork joji-art-2" aria-hidden="true"></div>
+<div class="theme-artwork brawl-art-1" aria-hidden="true"></div>
+<div class="theme-artwork brawl-art-2" aria-hidden="true"></div>
+<div class="theme-artwork brawl-art-3" aria-hidden="true"></div>
+
+<!-- LOADER -->
+<div id="loader-screen" role="status" aria-label="Cargando">
+    <div class="loader-stage">
+        <div class="loader-ball-shadow"></div>
+        <div class="loader-ball" id="ball"><div class="loader-ball-inner"></div></div>
+    </div>
+    <h2 class="loader-title" id="loader-text">Preparando la sorpresa</h2>
+    <div class="loader-progress-track">
+        <div class="loader-progress-fill" id="loaderProgressFill"></div>
+    </div>
+    <p class="loader-sub" id="loader-sub">cargando algo bonito...</p>
+</div>
+
+<!-- PANTALLA DE ENTRADA -->
+<div id="intro-screen">
+    <div class="intro-images" aria-hidden="true">
+        <img src="./img/cooky2.png" alt="" class="intro-img intro-img-1" loading="lazy">
+        <img src="./img/joji.png" alt="" class="intro-img intro-img-2" loading="lazy">
+        <img src="./img/cookytata.png" alt="" class="intro-img intro-img-3" loading="lazy">
+    </div>
+    <p class="intro-tagline">un espacio hecho solo para ti</p>
+    <button id="intro-btn" type="button">¿ESTÁS LISTA, ANA?</button>
+</div>
+
+<!-- NOTIFICACIÓN FLOTANTE MP3 -->
+<div id="mp3-notification">
+    <div style="flex:1" id="notif-text-area">
+        <div class="mp3-notif-title"><span class="mp3-notif-eq" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Sonando ahora</div>
+        <div class="mp3-notif-song" id="notif-song-name">Cargando track...</div>
+    </div>
+    <div class="mp3-notif-controls">
+        <button class="mp3-btn" id="notif-prev" type="button" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="mp3-btn" id="notif-play" type="button" aria-label="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="mp3-btn" id="notif-next" type="button" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/></svg></button>
+    </div>
+</div>
+
+<!-- BOTÓN MINIMIZADO MP3 -->
+<div id="mp3-mini-btn" role="button" aria-label="Abrir reproductor de música" tabindex="0">
+    <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zm12-2a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+</div>
+
+<!-- REPRODUCTOR MP3 COMPLETO -->
+<div id="mp3-player-modal">
+    <div class="mp3-header">
+        <span class="mp3-title">Playlist Especial</span>
+        <button class="mp3-close" id="mp3-minimize" type="button">X</button>
+    </div>
+    <div class="mp3-cover-art">
+        <canvas id="album-art" width="200" height="200"></canvas>
+    </div>
+    <div style="text-align: center; margin-bottom: 15px;">
+        <div class="mp3-notif-song" id="player-song-name" style="font-size: 1.2rem; margin-bottom: 4px;">Nombre Canción</div>
+        <div style="font-size: 0.85rem; opacity: 0.7;" id="player-artist-name">Artista</div>
+    </div>
+    <div class="mp3-timeline-container">
+        <span id="time-current">0:00</span>
+        <div class="mp3-timeline" id="timeline-click">
+            <div class="mp3-timeline-fill" id="timeline-fill"></div>
+        </div>
+        <span id="time-total">3:45</span>
+    </div>
+    <div class="mp3-main-controls">
+        <button class="mp3-btn" id="player-prev" type="button" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="mp3-btn" id="player-play" type="button" aria-label="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="mp3-btn" id="player-next" type="button" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/></svg></button>
+    </div>
+    <div class="mp3-volume">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+        <input type="range" min="0" max="100" value="50" class="mp3-vol-slider" id="player-volume">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05a4.5 4.5 0 002.5-4.02zM14 3.23v2.06a7 7 0 010 13.42v2.06a9 9 0 000-17.54z"/></svg>
+    </div>
+    <div class="mp3-playlist" id="mp3-playlist">
+        <div class="mp3-playlist-header">Playlist</div>
+        <div class="mp3-playlist-items" id="playlist-items"></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar" aria-label="Secciones del regalo">
+    <button class="tab-btn active" data-theme="cooky" data-tab="de-mi" data-num="01" aria-current="true" type="button">COOKY</button>
+    <button class="tab-btn" data-theme="joji" data-tab="amigos" data-num="02" type="button">JOJI</button>
+    <button class="tab-btn" data-theme="brawl" data-tab="brawl" data-num="03" type="button">BRAWL</button>
+</nav>
+
+<div class="container">
+    <!-- TAB 1 — COOKY / CARTA -->
+    <section id="de-mi" class="tab-content active" aria-labelledby="de-mi-heading">
+        <div class="window-card">
+            <div class="window-header">
+                <span>carta_para_ti.txt</span>
+                <div class="window-dots">
+                    <div class="dot dot-red"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-green"></div>
+                </div>
+            </div>
+            <div class="window-body">
+                <span class="letter-eyebrow">de mí, para ti</span>
+                <h1 class="letter-title" id="de-mi-heading">Para mi persona favorita</h1>
+                <p class="letter-title-sub">Feliz cumpleaños</p>
+
+                <div class="story-container" id="storyContainer">
+
+                    <div class="story-text-block">
+                        <span class="story-chapter-label">capítulo uno</span>
+                        <p>
+                            Quiero que este espacio sea tan tuyo como los pósters de BTS en tu cuarto: un lugar hecho
+                            exactamente a tu medida, combinando la música que te fascina, el equipo que te rodea y toda la
+                            gente que te admira.
+                        </p>
+                    </div>
+
+                    <!--
+                      [INSTRUCCIÓN PARA ISAAC]: cuando tengas la foto, agrega dentro
+                      del .story-frame un <img class="story-frame-media" src="tu-foto.jpg" alt="...">
+                      (reemplaza el div .story-frame-placeholder). data-reveal define la animación:
+                      "curtain", "focus" o "wipe".
+                    -->
+                    <div class="story-frame" data-reveal="curtain">
+                        <div class="story-frame-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                        <div class="story-frame-caption">como esa vez que nos reímos hasta llorar</div>
+                    </div>
+
+                    <div class="story-text-block">
+                        <span class="story-chapter-label">capítulo dos</span>
+                        <p>
+                            Desde el momento en que entraste en mi vida, has iluminado todo con tu energía. Me encanta
+                            verte armar jugadas en la cancha con la misma pasión con la que defiendes lo que crees.
+                        </p>
+                    </div>
+
+                    <div class="story-frame" data-reveal="focus">
+                        <div class="story-frame-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                        <div class="story-frame-caption">como esa vez que nos reímos hasta llorar</div>
+                    </div>
+
+                    <div class="story-text-block">
+                        <span class="story-chapter-label">capítulo tres</span>
+                        <p>
+                            Ya sea que estemos escuchando nuestra playlist, perdiendo el tiempo o simplemente estando
+                            juntos, cada día contigo se siente como ganar la partida perfecta.
+                        </p>
+                    </div>
+
+                    <div class="story-frame" data-reveal="wipe">
+                        <div class="story-frame-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                        <div class="story-frame-caption">nuestra escena favorita, la de siempre</div>
+                    </div>
+
+                    <div class="story-text-block">
+                        <span class="story-chapter-label">capítulo cuatro</span>
+                        <p>
+                            Espero que este rincón te haga sonreír tanto como tú me haces sonreír a mí. Te mereces esto
+                            y todo lo bonito del mundo hoy y siempre.
+                        </p>
+                    </div>
+
+                    <!--
+                      ===== FOTOGRAMA FINAL =====
+                      Este frame es más grande y usa data-reveal="finale": un destello blanco
+                      se retira para revelar la imagen, como el cierre de un episodio.
+                      Ideal para tu foto favorita de los dos.
+                    -->
+                    <div class="story-frame" data-reveal="finale">
+                        <div class="story-frame-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                        <div class="story-frame-caption">y aquí seguimos, escribiendo lo que sigue</div>
+                    </div>
+
+                </div>
+
+                <div class="letter-signature">
+                    <span class="letter-signature-text">con todo mi amor, Isaac</span>
+                    <div class="mini-vinyl" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 2 — JOJI / AMIGOS -->
+    <section id="amigos" class="tab-content" aria-labelledby="amigos-heading">
+        <div class="window-card">
+            <div class="window-header">
+                <span>amigos_y_complices.exe</span>
+                <div class="window-dots">
+                    <div class="dot dot-red"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-green"></div>
+                </div>
+            </div>
+            <div class="window-body">
+                <p class="joji-heading">mensajes / 02</p>
+                <h2 class="joji-title" id="amigos-heading">La gente que también te quiere</h2>
+                <div class="friends-grid">
+                    <div class="friend-card" data-stamp="polaroid nº 01">
+                        <div class="friend-photo" data-initial="V"></div>
+                        <h3>Equipo de Voleibol</h3>
+                        <p>"¡Eres la mejor armadora y una amiga increíble! Feliz cumple."</p>
+                    </div>
+                    <div class="friend-card" data-stamp="polaroid nº 02">
+                        <div class="friend-photo" data-initial="L"></div>
+                        <h3>Prima Lucía</h3>
+                        <p>"¡Cómplices siempre! Que tengas un día hermoso lleno de BTS."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 3 — BRAWL / CÓDIGOS -->
+    <section id="brawl" class="tab-content" aria-labelledby="brawl-heading">
+        <div class="window-card">
+            <div class="window-header" style="background:#ffd60a; color:#10021f;">
+                <span>brawl_pass_rewards.sys</span>
+                <div class="window-dots">
+                    <div class="dot dot-red"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-green"></div>
+                </div>
+            </div>
+            <div class="window-body">
+                <h2 class="brawl-title" id="brawl-heading">CANJEA TUS CÓDIGOS</h2>
+                <p class="brawl-sub">Ingresa palabras secretas para desbloquear vales conmigo</p>
+                <div class="code-input-group">
+                    <label for="coupon-code" style="position:absolute; left:-9999px;">Código secreto</label>
+                    <input type="text" id="coupon-code" class="code-input" placeholder="INGRESA CÓDIGO..." autocomplete="off">
+                    <button type="button" class="code-btn" id="redeemBtn">CANJEAR</button>
+                </div>
+                <div style="text-align:center;">
+                    <p class="code-hint" id="adminHint" role="button" tabindex="0">pista: pregúntame en persona</p>
+                </div>
+                <div id="coupon-progress" style="text-align:center; margin-bottom:18px; font-family:var(--font-mono); font-size:0.75rem; font-weight:700; color:var(--ink); opacity:0.7; letter-spacing:0.08em;">
+                    VALES: <span id="coupon-count">0</span> / <span id="coupon-total">29</span>
+                </div>
+                <div class="unlocked-coupons" id="coupons-container">
+                    <div class="empty-state" id="emptyState">aún no has canjeado ningún vale</div>
+                </div>
+                <div id="adminPanel" style="display:none; margin-top:34px; border-top:2px dashed var(--ink); padding-top:18px; flex-direction:column; gap:12px;">
+                    <p style="font-family:var(--font-mono); font-size:0.75rem; opacity:0.6; letter-spacing:0.08em;">panel de códigos (para Isaac)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- MODALES BRAWL -->
+<div class="modal-overlay" id="couponModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card" id="modalCard">
+        <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Cerrar">X</button>
+        <span class="modal-icon" id="modalIcon"></span>
+        <span class="modal-label" id="modalLabel">vale especial</span>
+        <h3 class="modal-title" id="modalTitle">Titulo</h3>
+        <p class="modal-desc" id="modalDesc"></p>
+        <div id="modalExtra"></div>
+        <p class="modal-stamp">canjéalo cuando quieras</p>
+    </div>
+</div>
+
+<div class="brawlbox-overlay" id="brawlboxOverlay">
+    <div class="brawlbox-rays"></div>
+    <button type="button" class="brawlbox-skip" id="brawlboxSkip">saltar</button>
+    <div class="brawlbox-stage">
+        <div class="brawlbox-glow" id="brawlboxGlow"></div>
+        <div class="brawlbox-box" id="brawlboxBox">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="120" height="120"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/><circle cx="12" cy="13" r="2" fill="#10021f"/></svg>
+        </div>
+        <svg class="brawlbox-star" id="star1" style="top:5%; left:5%;" viewBox="0 0 24 24"><path d="M12 2l3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z"/></svg>
+        <svg class="brawlbox-star" id="star2" style="top:2%; right:10%;" viewBox="0 0 24 24"><path d="M12 2l3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z"/></svg>
+        <svg class="brawlbox-star" id="star3" style="bottom:5%; left:15%;" viewBox="0 0 24 24"><path d="M12 2l3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z"/></svg>
+        <svg class="brawlbox-star" id="star4" style="bottom:10%; right:5%;" viewBox="0 0 24 24"><path d="M12 2l3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z"/></svg>
+    </div>
+    <p class="brawlbox-text" id="brawlboxText">abriendo mega caja...</p>
+</div>
+
+<script>
+/* ==========================================================================
+   1. LOADER SINCRONIZADO
+========================================================================== */
+const loaderScreen = document.getElementById('loader-screen');
+const introScreen = document.getElementById('intro-screen');
+const animationDuration = loaderScreen ? 2000 : 0;
+let ballBounceAnim;
+if (loaderScreen && window.anime) {
+    /* Pelota rebotando en bucle: cae, aplasta al tocar el suelo, rebota, se estira al subir */
+    ballBounceAnim = anime({
+        targets: '#ball',
+        keyframes: [
+            { translateY: 0, scaleX: 1, scaleY: 1, rotate: 0, duration: 0 },
+            { translateY: -90, scaleX: 0.94, scaleY: 1.08, rotate: 120, duration: 340, easing: 'easeOutQuad' },
+            { translateY: -90, scaleX: 1, scaleY: 1, rotate: 150, duration: 40, easing: 'linear' },
+            { translateY: 0, scaleX: 1.18, scaleY: 0.8, rotate: 270, duration: 340, easing: 'easeInQuad' },
+            { translateY: 6, scaleX: 1.28, scaleY: 0.68, rotate: 300, duration: 90, easing: 'easeOutQuad' },
+            { translateY: 0, scaleX: 1, scaleY: 1, rotate: 360, duration: 140, easing: 'easeOutElastic(1, .6)' }
+        ],
+        loop: true
+    });
+    anime({
+        targets: '.loader-ball-shadow',
+        scaleX: [1, 0.55, 1], opacity: [0.35, 0.14, 0.35],
+        duration: 940, easing: 'easeInOutQuad', loop: true
+    });
+}
+const loaderSteps = [
+    { pct: 20, text: 'Preparando la sorpresa', sub: 'cargando algo bonito...' },
+    { pct: 55, text: 'Afinando los detalles', sub: 'casi listo...' },
+    { pct: 85, text: 'Sacando brillo', sub: 'un segundo más...' }
+];
+let stepIndex = 0;
+const progressFill = document.getElementById('loaderProgressFill');
+const loaderTextEl = document.getElementById('loader-text');
+const loaderSubEl = document.getElementById('loader-sub');
+let loaderStepInterval;
+function runLoaderStep(){
+    if (!loaderTextEl || !loaderSubEl || !progressFill) return;
+    if (stepIndex >= loaderSteps.length) return;
+    const step = loaderSteps[stepIndex];
+    loaderTextEl.textContent = step.text;
+    loaderSubEl.textContent = step.sub;
+    if (window.anime) { anime({ targets: progressFill, width: step.pct + '%', duration: 500, easing: 'easeOutQuad' }); }
+    else { progressFill.style.width = step.pct + '%'; }
+    stepIndex++;
+}
+if (loaderScreen) {
+    runLoaderStep();
+    loaderStepInterval = setInterval(() => {
+        runLoaderStep();
+        if (stepIndex >= loaderSteps.length) clearInterval(loaderStepInterval);
+    }, 550);
+}
+
+function revealPageAfterLoader(introAlreadySeen){
+    const ls = document.getElementById('loader-screen');
+    if (ls) ls.style.display = 'none';
+    if (introAlreadySeen) {
+        const is = document.getElementById('intro-screen');
+        if (is) is.style.display = 'none';
+        loadSong(currentSongIndex, false);
+        miniBtn.style.opacity = '1';
+        miniBtn.style.pointerEvents = 'auto';
+        animateTabContent('#de-mi');
+        typewriterTitle();
+    } else {
+        const is = document.getElementById('intro-screen');
+        if (is) { is.style.display = 'flex'; is.style.opacity = '1'; }
+    }
+}
+
+window.addEventListener('load', () => {
+    if (!loaderScreen) return;
+
+    const introAlreadySeen = false;
+
+    setTimeout(() => {
+        clearInterval(loaderStepInterval);
+        if (!window.anime) {
+            revealPageAfterLoader(introAlreadySeen);
+            return;
+        }
+        if (progressFill) anime({ targets: progressFill, width: '100%', duration: 300, easing: 'easeOutQuad' });
+        if (loaderTextEl) loaderTextEl.innerText = '¡Listo!';
+        if (loaderSubEl) loaderSubEl.innerText = 'aquí vamos...';
+        if (ballBounceAnim) ballBounceAnim.pause();
+
+        const tl = anime.timeline({ easing: 'easeOutQuad' });
+        tl.add({
+            targets: '#ball', translateY: [0, -130], scaleX: [1, 0.85], scaleY: [1, 1.2],
+            duration: 400, easing: 'easeOutQuad'
+        })
+        .add({ targets: '#ball', scale: [1, 0], opacity: [1, 0], duration: 320, easing: 'easeInBack' }, '+=60')
+        .add({ targets: '.loader-ball-shadow', opacity: 0, duration: 250, easing: 'easeOutQuad' }, '-=250')
+        .add({
+            targets: '#loader-screen', opacity: 0, duration: 550, easing: 'easeInOutQuad',
+            complete: () => revealPageAfterLoader(introAlreadySeen)
+        });
+    }, animationDuration + 200);
+});
+
+/* Vigilante: si el evento load o anime.js falla, forzar ocultar el loader */
+setTimeout(() => {
+    const ls = document.getElementById('loader-screen');
+    if (ls && ls.style.display !== 'none' && ls.getBoundingClientRect().width > 0) {
+        clearInterval(loaderStepInterval);
+        revealPageAfterLoader(false);
+    }
+}, 6000);
+
+/* ==========================================================================
+   1.5 LÓGICA DE AUDIO
+========================================================================== */
+const playlist = [
+    { title: "Bienvenidos A Felicilandia", artist: "Alvaro Diaz", src: "./sound/Bienvenidos%20A%20Felicilandia.mp3" },
+    { title: "Good Life", artist: "Kanye West, T-Pain", src: "./sound/Good%20Life.mp3" },
+    { title: "Love Blur", artist: "slayr", src: "./sound/Love%20Blur.mp3" },
+    { title: "Like You Do", artist: "Joji", src: "./sound/Like%20You%20Do.mp3" },
+    { title: "Nothing Can Come Between Us", artist: "Sade", src: "./sound/Nothing%20Can%20Come%20Between%20Us.mp3" },
+    { title: "White Dress", artist: "Kanye West", src: "./sound/White%20Dress.mp3" },
+    { title: "favorite apple", artist: "The Two Lips", src: "./sound/favorite%20apple.mp3" },
+    { title: "misa", artist: "Nsqk", src: "./sound/misa.mp3" },
+    { title: "LAURYN", artist: "Trueno", src: "./sound/LAURYN.mp3" },
+    { title: "COMETIERRA REMIX", artist: "Nsqk, legallyrxx", src: "./sound/COMETIERRA%20REMIX.mp3" },
+    { title: "Pink Matter", artist: "Frank Ocean", src: "./sound/Pink%20Matter.mp3" },
+    { title: "OG Black", artist: "Alvaro Diaz, Randy Nota Loca", src: "./sound/OG%20Black.mp3" },
+    { title: "EARFQUAKE", artist: "Tyler, The Creator", src: "./sound/EARFQUAKE.mp3" },
+    { title: "Love You Anyway", artist: "The Marías", src: "./sound/Love%20You%20Anyway.mp3" },
+    { title: "REAL GANGSTA LOVE", artist: "Trueno", src: "./sound/REAL%20GANGSTA%20LOVE.mp3" },
+    { title: "CIEGO SORDO MUDO", artist: "Bryartz, AKRIILA", src: "./sound/CIEGO%20SORDO%20MUDO.mp3" },
+    { title: "love.", artist: "wave to earth", src: "./sound/love..mp3" },
+    { title: "Sur (Interludio)", artist: "Nsqk", src: "./sound/Sur%20(Interludio).mp3" }
+];
+
+let currentSongIndex = parseInt(localStorage.getItem('audio_currentIndex') || '0', 10);
+let isPlaying = false;
+let savedTime = parseFloat(localStorage.getItem('audio_currentTime') || '0');
+let savedVolume = parseFloat(localStorage.getItem('audio_volume') || '0.5');
+let notifTimeout;
+let currentSrc = '';
+const audio = document.querySelector('#main-audio') || (() => { const a = document.createElement('audio'); a.id = 'main-audio'; a.preload = 'auto'; document.body.appendChild(a); return a; })();
+
+const introBtn = document.getElementById('intro-btn');
+const notifDiv = document.getElementById('mp3-notification');
+const miniBtn = document.getElementById('mp3-mini-btn');
+const playerModal = document.getElementById('mp3-player-modal');
+const vinylCover = document.querySelector('.css-vinyl');
+
+const notifSongText = document.getElementById('notif-song-name');
+const playerSongText = document.getElementById('player-song-name');
+const playerArtistText = document.getElementById('player-artist-name');
+
+const btnNPlay = document.getElementById('notif-play');
+const btnNNext = document.getElementById('notif-next');
+const btnNPrev = document.getElementById('notif-prev');
+const btnPPlay = document.getElementById('player-play');
+const btnPNext = document.getElementById('player-next');
+const btnPPrev = document.getElementById('player-prev');
+
+function loadSong(index, autoPlay) {
+    const song = playlist[index];
+    notifSongText.textContent = song.title;
+    playerSongText.textContent = song.title;
+    playerArtistText.textContent = song.artist;
+    currentSrc = song.src;
+    currentSongIndex = index;
+    localStorage.setItem('audio_currentIndex', index);
+    if (timelineFill) timelineFill.style.width = '0%';
+    if (timeCurrent) timeCurrent.textContent = '0:00';
+    savedTime = 0;
+    localStorage.setItem('audio_currentTime', '0');
+    AudioBridge.load(song.src, 0, autoPlay === true);
+    updatePlaylistHighlight();
+    const artCanvas = document.getElementById('album-art');
+    if (artCanvas) generateAlbumArt(artCanvas, index);
+}
+
+const ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+
+function syncUI(state) {
+    if (state.src) {
+        const idx = playlist.findIndex(s => s.src === state.src);
+        if (idx >= 0 && idx !== currentSongIndex) {
+            currentSongIndex = idx;
+            localStorage.setItem('audio_currentIndex', idx);
+            notifSongText.textContent = playlist[idx].title;
+            playerSongText.textContent = playlist[idx].title;
+            playerArtistText.textContent = playlist[idx].artist;
+            updatePlaylistHighlight();
+        }
+        if (state.currentTime) savedTime = state.currentTime;
+        if (state.duration && timelineFill) {
+            timelineFill.style.width = Math.min(100, (state.currentTime / state.duration) * 100) + '%';
+            timeCurrent.textContent = formatTime(state.currentTime);
+            timeTotal.textContent = formatTime(state.duration);
+        }
+        const playing = !state.paused && !state.ended;
+        if (playing !== isPlaying) {
+            isPlaying = playing;
+            btnNPlay.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
+            btnPPlay.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
+            btnNPlay.setAttribute('aria-label', isPlaying ? 'Pausar' : 'Reproducir');
+            btnPPlay.setAttribute('aria-label', isPlaying ? 'Pausar' : 'Reproducir');
+            vinylCover.style.animationPlayState = isPlaying ? 'running' : 'paused';
+        }
+    }
+    if (state.ended) {
+        currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        savedTime = 0;
+        localStorage.setItem('audio_currentTime', 0);
+        loadSong(currentSongIndex, true);
+    }
+}
+
+AudioBridge.onUpdate(syncUI);
+
+function togglePlay() {
+    if (isPlaying) {
+        AudioBridge.pause();
+    } else {
+        if (!currentSrc) { currentSrc = playlist[currentSongIndex].src; }
+        AudioBridge.load(currentSrc, savedTime, true);
+    }
+}
+
+function nextSong() {
+    currentSongIndex = (currentSongIndex + 1) % playlist.length;
+    loadSong(currentSongIndex, true);
+}
+
+function prevSong() {
+    currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+    loadSong(currentSongIndex, true);
+}
+
+function seekTo(pct) {
+    AudioBridge.seek(pct * (AudioBridge._lastDuration || 0));
+}
+
+btnNPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+btnPPlay.addEventListener('click', togglePlay);
+btnNNext.addEventListener('click', (e) => { e.stopPropagation(); nextSong(); });
+btnPNext.addEventListener('click', nextSong);
+btnNPrev.addEventListener('click', (e) => { e.stopPropagation(); prevSong(); });
+btnPPrev.addEventListener('click', prevSong);
+
+function generateAlbumArt(canvas, index) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const palettes = [
+        ['#ff2f6e','#ffd23f'], ['#1ed760','#1db954'], ['#00e5ff','#0099cc'],
+        ['#b0233b','#ff6f9c'], ['#ffd23f','#ff8c00'], ['#7c3aed','#00e5ff'],
+        ['#10021f','#ff2f6e'], ['#ff8c00','#ffd23f'], ['#0099cc','#2dd4ff'],
+        ['#ec1560','#f0b429'], ['#10021f','#ffd60a'], ['#ff2f6e','#7c3aed'],
+        ['#00e5ff','#10021f'], ['#ffd23f','#10021f'], ['#ff6b9d','#ffd23f'],
+        ['#2dd4ff','#ff2f6e'], ['#10021f','#00e5ff'], ['#ffd23f','#ff2f6e'],
+        ['#7c3aed','#ff2f6e']
+    ];
+    const [c1, c2] = palettes[index % palettes.length];
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, c1);
+    grad.addColorStop(1, c2);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Formas decorativas
+    ctx.globalAlpha = 0.15;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(w * 0.3, h * 0.3, w * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(w * 0.75, h * 0.7, w * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Texto de inicial
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 72px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const letter = playlist[index]?.title.charAt(0).toUpperCase() || '?';
+    ctx.fillText(letter, w / 2, h / 2);
+
+    // Círculo decorativo tipo disco
+    ctx.globalAlpha = 0.1;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, w * 0.42, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, w * 0.12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+}
+
+function renderPlaylist() {
+    const container = document.getElementById('playlist-items');
+    if (!container) return;
+    container.innerHTML = '';
+    playlist.forEach((s, i) => {
+        const item = document.createElement('div');
+        item.className = 'mp3-playlist-item' + (i === currentSongIndex ? ' active' : '');
+        item.innerHTML = `<span class="pli-num">${String(i + 1).padStart(2, '0')}</span><span class="pli-info"><span class="pli-title">${s.title}</span><span class="pli-artist">${s.artist}</span></span>`;
+        item.addEventListener('click', () => { loadSong(i, true); });
+        container.appendChild(item);
+    });
+}
+
+function updatePlaylistHighlight() {
+    const items = document.querySelectorAll('.mp3-playlist-item');
+    items.forEach((el, i) => el.classList.toggle('active', i === currentSongIndex));
+}
+
+AudioBridge.volume(savedVolume);
+renderPlaylist();
+
+setInterval(() => {
+    const a = document.querySelector('#main-audio');
+    if (a && !a.paused && a.currentTime > 0) {
+        savedTime = a.currentTime;
+        localStorage.setItem('audio_currentTime', savedTime);
+    }
+}, 2000);
+
+/* Autoplay de música al entrar:
+   Los navegadores bloquean el sonido sin un gesto del usuario, así que la canción
+   arranca automáticamente en el PRIMER toque/tecla en la página (equivale a "inicio
+   automático"). En la primera visita lo hace el botón del intro; en las siguientes,
+   cualquier primer gesto reproduce y muestra la notificación del reproductor. */
+(function startMusicOnFirstGesture(){
+    const kick = () => {
+        if (introScreen && introScreen.style.display !== 'none') return;
+        window.removeEventListener('pointerdown', kick, true);
+        window.removeEventListener('touchstart', kick, true);
+        window.removeEventListener('keydown', kick, true);
+        savedTime = parseFloat(localStorage.getItem('audio_currentTime') || '0');
+        currentSrc = playlist[currentSongIndex].src;
+        AudioBridge.load(currentSrc, savedTime, true);
+        isPlaying = true;
+        btnNPlay.innerHTML = ICON_PAUSE;
+        btnPPlay.innerHTML = ICON_PAUSE;
+        notifSongText.textContent = playlist[currentSongIndex].title;
+        playerSongText.textContent = playlist[currentSongIndex].title;
+        playerArtistText.textContent = playlist[currentSongIndex].artist;
+        vinylCover.style.animationPlayState = 'running';
+        notifDiv.style.transform = 'translateX(370px)';
+        renderPlaylist();
+        if (notifTimeout) clearTimeout(notifTimeout);
+        notifTimeout = setTimeout(hideNotification, 6000);
+    };
+    window.addEventListener('pointerdown', kick, true);
+    window.addEventListener('touchstart', kick, true);
+    window.addEventListener('keydown', kick, true);
+})();
+
+function hideNotification() {
+    notifDiv.style.transform = 'translateX(-370px)';
+    setTimeout(() => {
+        miniBtn.style.opacity = '1';
+        miniBtn.style.pointerEvents = 'auto';
+    }, 400);
+}
+
+if (introBtn) introBtn.addEventListener('click', () => {
+    savedTime = 0;
+    localStorage.setItem('audio_currentTime', 0);
+    currentSrc = playlist[currentSongIndex].src;
+    AudioBridge.load(currentSrc, 0, true);
+    isPlaying = true;
+    btnNPlay.innerHTML = ICON_PAUSE;
+    btnPPlay.innerHTML = ICON_PAUSE;
+    vinylCover.style.animationPlayState = 'running';
+    anime({
+        targets: introScreen || "#loader-screen", opacity: 0, duration: 600, easing: 'linear',
+        complete: () => {
+            if (introScreen) introScreen.style.display = 'none';
+            animateTabContent('#de-mi');
+            typewriterTitle();
+            notifDiv.style.transform = 'translateX(370px)';
+            notifTimeout = setTimeout(hideNotification, 6000);
+        }
+    });
+});
+
+function openMp3Player() {
+    clearTimeout(notifTimeout);
+    notifDiv.style.transform = 'translateX(-370px)';
+    miniBtn.style.opacity = '0';
+    miniBtn.style.pointerEvents = 'none';
+    playerModal.style.display = 'flex';
+    anime({ targets: playerModal, translateY: [50, 0], opacity: [0, 1], duration: 400, easing: 'easeOutBack' });
+}
+/* Click en la notificación (fuera de los controles) abre el reproductor */
+notifDiv.addEventListener('click', (e) => {
+    if (e.target.closest('.mp3-notif-controls')) return;
+    openMp3Player();
+});
+/* Pelotilla arrastrable: se puede mover a cualquier parte de la pantalla.
+   Si el usuario suelta sin arrastrar (un simple tap/click), abre el reproductor. */
+(function makeMiniBtnDraggable(){
+    let isDragging = false, moved = false, startX = 0, startY = 0, originX = 0, originY = 0;
+    const DRAG_THRESHOLD = 6;
+
+    function clampToViewport(x, y){
+        const rect = miniBtn.getBoundingClientRect();
+        const maxX = window.innerWidth - rect.width;
+        const maxY = window.innerHeight - rect.height;
+        return { x: Math.min(Math.max(x, 0), Math.max(maxX, 0)), y: Math.min(Math.max(y, 0), Math.max(maxY, 0)) };
+    }
+
+    function pointerDown(e){
+        isDragging = true; moved = false;
+        const point = e.touches ? e.touches[0] : e;
+        startX = point.clientX; startY = point.clientY;
+        const rect = miniBtn.getBoundingClientRect();
+        originX = rect.left; originY = rect.top;
+        miniBtn.classList.add('dragging');
+        miniBtn.style.right = 'auto';
+        document.addEventListener('mousemove', pointerMove);
+        document.addEventListener('touchmove', pointerMove, { passive: false });
+        document.addEventListener('mouseup', pointerUp);
+        document.addEventListener('touchend', pointerUp);
+    }
+    function pointerMove(e){
+        if (!isDragging) return;
+        const point = e.touches ? e.touches[0] : e;
+        const dx = point.clientX - startX;
+        const dy = point.clientY - startY;
+        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) moved = true;
+        if (moved){
+            e.preventDefault();
+            const { x, y } = clampToViewport(originX + dx, originY + dy);
+            miniBtn.style.left = x + 'px';
+            miniBtn.style.top = y + 'px';
+        }
+    }
+    function pointerUp(){
+        isDragging = false;
+        miniBtn.classList.remove('dragging');
+        document.removeEventListener('mousemove', pointerMove);
+        document.removeEventListener('touchmove', pointerMove);
+        document.removeEventListener('mouseup', pointerUp);
+        document.removeEventListener('touchend', pointerUp);
+        if (!moved) openMp3Player();
+    }
+    miniBtn.addEventListener('mousedown', pointerDown);
+    miniBtn.addEventListener('touchstart', pointerDown, { passive: true });
+    miniBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openMp3Player(); } });
+    window.addEventListener('resize', () => {
+        const rect = miniBtn.getBoundingClientRect();
+        const { x, y } = clampToViewport(rect.left, rect.top);
+        miniBtn.style.left = x + 'px';
+        miniBtn.style.top = y + 'px';
+    });
+})();
+
+document.getElementById('mp3-minimize').addEventListener('click', () => {
+    anime({
+        targets: playerModal, translateY: [0, 50], opacity: [1, 0], duration: 300, easing: 'easeInQuad',
+        complete: () => {
+            playerModal.style.display = 'none';
+            miniBtn.style.opacity = '1';
+            miniBtn.style.pointerEvents = 'auto';
+        }
+    });
+});
+
+const timelineFill = document.getElementById('timeline-fill');
+const timeCurrent = document.getElementById('time-current');
+const timeTotal = document.getElementById('time-total');
+function formatTime(s){ if(!s||!isFinite(s)) return '0:00'; const m=Math.floor(s/60); return m+':'+String(Math.floor(s%60)).padStart(2,'0'); }
+audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        timelineFill.style.width = pct + '%';
+        timeCurrent.textContent = formatTime(audio.currentTime);
+        timeTotal.textContent = formatTime(audio.duration);
+    }
+});
+audio.addEventListener('loadedmetadata', () => {
+    timeTotal.textContent = formatTime(audio.duration);
+});
+
+document.getElementById('timeline-click').addEventListener('click', function (e) {
+    const rect = this.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    AudioBridge.seek(pct * (AudioBridge._lastDuration || 0));
+    timelineFill.style.width = (pct * 100) + '%';
+});
+
+document.getElementById('player-volume').addEventListener('input', function () {
+    const v = this.value / 100;
+    savedVolume = v;
+    localStorage.setItem('audio_volume', v);
+    AudioBridge.volume(v);
+});
+
+/* ==========================================================================
+   2. EFECTO TÍTULO
+========================================================================== */
+function typewriterTitle(){
+    const el = document.getElementById('de-mi-heading');
+    const full = el.textContent;
+    el.textContent = '';
+    el.style.borderRight = '3px solid var(--accent)';
+    anime({
+        targets: { count: 0 },
+        count: full.length,
+        round: 1,
+        duration: full.length * 55,
+        easing: 'steps(' + full.length + ')',
+        update: (anim) => {
+            const n = Math.floor(anim.animations[0].currentValue);
+            el.textContent = full.slice(0, n);
+        },
+        complete: () => { el.style.borderRight = 'none'; }
+    });
+}
+
+/* ==========================================================================
+   2.5 HISTORIA DE SCROLL
+========================================================================== */
+function initStoryScroll(){
+    const revealTargets = document.querySelectorAll('#storyContainer .story-text-block, #storyContainer .story-frame, .letter-signature');
+    if (!revealTargets.length) return;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting){
+                entry.target.classList.add('in-view');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { root: null, threshold: 0.28, rootMargin: '0px 0px -8% 0px' });
+    revealTargets.forEach(el => observer.observe(el));
+}
+initStoryScroll();
+
+/* ==========================================================================
+   3. PESTAÑAS
+========================================================================== */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const theme = btn.dataset.theme;
+        const tabId = btn.dataset.tab;
+        switchTab(theme, tabId, btn);
+    });
+});
+let currentTabId = 'de-mi';
+let isTransitioning = false;
+
+function switchTab(theme, tabId, btnEl){
+    if (tabId === currentTabId) {
+        if (theme) document.body.className = `theme-${theme}`;
+        return;
+    }
+    if (isTransitioning) return;
+    isTransitioning = true;
+    
+    // Add transition class for smooth theme switching
+    document.body.classList.add('theme-switching');
+    
+    // Create transition overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'page-transition';
+    overlay.style.background = `var(--accent)`;
+    document.body.appendChild(overlay);
+    
+    // Trigger transition
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+    });
+    
+    setTimeout(() => {
+        document.body.className = `theme-${theme}`;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+            b.removeAttribute('aria-current');
+        });
+        btnEl.classList.add('active');
+        btnEl.setAttribute('aria-current', 'true');
+        const outgoing = document.getElementById(currentTabId);
+        const incoming = document.getElementById(tabId);
+        
+        outgoing.classList.remove('active');
+        incoming.classList.add('active');
+        currentTabId = tabId;
+        animateTabContent(`#${tabId}`);
+        
+        // Remove transition class
+        document.body.classList.remove('theme-switching');
+        
+        // Reverse overlay
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.remove();
+            isTransitioning = false;
+        }, 500);
+    }, 250);
+}
+function activateTabFromHash(){
+    const tabId = location.hash.replace('#', '');
+    if (!tabId) return;
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    if (btn) switchTab(btn.dataset.theme, btn.dataset.tab, btn);
+}
+window.addEventListener('hashchange', activateTabFromHash);
+activateTabFromHash();
+function animateTabContent(targetId){
+    anime({ targets: `${targetId} .window-card`, translateY: [26, 0], opacity: [0, 1], duration: 550, easing: 'easeOutCubic' });
+}
+
+/* ==========================================================================
+   4. SISTEMA DE CÓDIGOS BRAWL
+========================================================================== */
+/* SVGS, RARITY_META, REWARD_DEFINITIONS y REWARDS_BY_CODE viven ahora en
+   shared.js (fuente única de verdad) — cargado antes que este script. */
+const unlockedCodes = new Set(JSON.parse(localStorage.getItem('unlocked_coupons') || '[]'));
+
+function saveCoupons(){
+    localStorage.setItem('unlocked_coupons', JSON.stringify([...unlockedCodes]));
+    const count = document.getElementById('coupon-count');
+    if (count) count.textContent = unlockedCodes.size;
+}
+
+function renderCouponCard(reward, skipAnim = false){
+    const container = document.getElementById('coupons-container');
+    const card = document.createElement('div');
+    card.className = `coupon-card rarity-${reward.rarity}`;
+    card.dataset.code = reward.code;
+    const rarityName = (RARITY_META[reward.rarity] || {}).name || reward.rarity;
+    const order = (RARITY_META[reward.rarity] || {}).order || 1;
+
+    /* extras visuales por rareza: brillo giratorio (legendario/ultra), tira de película (especial), destellos (super-raro) */
+    let rarityExtra = '';
+    if (reward.rarity === 'especial') rarityExtra = '<span class="coupon-filmstrip"></span>';
+    if (reward.rarity === 'super-raro') rarityExtra = '<span class="sparkle-cluster"><span></span><span></span><span></span></span>';
+    if (reward.rarity === 'legendario' || reward.rarity === 'ultralegendario') rarityExtra = '<span class="coupon-shimmer"></span>';
+
+    card.innerHTML = `
+        <span class="coupon-notch-right"></span>
+        <span class="coupon-perf-line"></span>
+        ${rarityExtra}
+        <button type="button" class="coupon-remove" aria-label="Quitar cupón">X</button>
+        <span class="rarity-tag">${rarityName}</span>
+        <span class="coupon-icon" style="margin-top:16px;">${reward.icon}</span>
+        <span class="coupon-label">${reward.label}</span>
+        <strong>${reward.title}</strong>
+        <span class="coupon-code-stub">cód. ${reward.code}</span>
+    `;
+
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('.coupon-remove')) return;
+        openCouponModal(reward);
+    });
+
+    card.querySelector('.coupon-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        anime({
+            targets: card, scale: 0, opacity: 0, rotate: '8deg', duration: 260, easing: 'easeInBack',
+            complete: () => {
+                card.remove();
+                unlockedCodes.delete(reward.code.toUpperCase());
+                saveCoupons();
+                maybeShowEmptyState();
+            }
+        });
+    });
+
+    const emptyState = document.getElementById('emptyState');
+    if (emptyState) emptyState.remove();
+    container.appendChild(card);
+    updateCouponProgress();
+
+    requestAnimationFrame(() => {
+        card.classList.add('visible');
+        if (!skipAnim){
+            /* animación de entrada escalada por rareza: cuanto más rara, más "espectacular" el rebote */
+            if (order <= 2){
+                anime({ targets: card, scale: [0.6, 1], rotate: ['-8deg', '0deg'], opacity: [0, 1], duration: 500, easing: 'easeOutBack' });
+            } else if (order === 3){
+                anime({ targets: card, scale: [0.5, 1.05, 1], rotate: ['-10deg', '3deg', '0deg'], opacity: [0, 1], duration: 620, easing: 'easeOutElastic(1, .7)' });
+            } else if (order === 4){
+                anime({ targets: card, scale: [0.4, 1.1, 0.96, 1], rotate: ['-14deg', '5deg', '-2deg', '0deg'], opacity: [0, 1], duration: 750, easing: 'easeOutElastic(1, .55)' });
+            } else {
+                anime({ targets: card, scale: [0.2, 1.15, 0.95, 1], rotate: ['-180deg', '8deg', '-3deg', '0deg'], opacity: [0, 1], duration: 950, easing: 'easeOutElastic(1, .55)' });
+            }
+        } else {
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1) rotate(0deg)';
+        }
+    });
+    const totalCount = document.querySelectorAll('.coupon-card').length;
+    if (totalCount >= 29) {
+        setTimeout(() => {
+            confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 }, colors: ['#ffd60a','#ff3366','#00e5ff','#ff9f43','#ec1789'] });
+            setTimeout(() => confetti({ particleCount: 200, spread: 120, origin: { x: 0.2, y: 0.5 }, colors: ['#ffd60a','#fff'] }), 400);
+            setTimeout(() => confetti({ particleCount: 200, spread: 120, origin: { x: 0.8, y: 0.5 }, colors: ['#ffd60a','#fff'] }), 800);
+        }, 600);
+    }
+}
+
+function updateCouponProgress(){
+    const count = document.querySelectorAll('.coupon-card').length;
+    const countEl = document.getElementById('coupon-count');
+    if (countEl) countEl.textContent = count;
+    const progEl = document.getElementById('coupon-progress');
+    if (progEl && count >= 29) {
+        progEl.innerHTML = '🏆 <span style="color:#ffd60a;">¡COLECCIÓN COMPLETA!</span> 🏆';
+        progEl.style.opacity = '1';
+        progEl.style.fontSize = '0.9rem';
+    }
+}
+function maybeShowEmptyState(){
+    const container = document.getElementById('coupons-container');
+    if (container.children.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.id = 'emptyState';
+        empty.textContent = 'aún no has canjeado ningún vale';
+        container.appendChild(empty);
+    }
+    updateCouponProgress();
+}
+
+/* ==========================================================================
+   5. MODAL Y CAJA BRAWL
+========================================================================== */
+function openCouponModal(reward){
+    const overlay = document.getElementById('couponModal');
+    const card = document.getElementById('modalCard');
+    card.className = `modal-card mrarity-${reward.rarity}`;
+    const rarityName = (RARITY_META[reward.rarity] || {}).name || reward.rarity;
+
+    const existingBadge = card.querySelector('.modal-rarity-badge');
+    if (existingBadge) existingBadge.remove();
+
+    document.getElementById('modalIcon').innerHTML = reward.icon;
+    document.getElementById('modalLabel').textContent = reward.label;
+    document.getElementById('modalTitle').textContent = reward.title;
+    document.getElementById('modalDesc').textContent = reward.desc;
+
+    const badge = document.createElement('span');
+    badge.className = 'modal-rarity-badge';
+    badge.textContent = rarityName;
+    document.getElementById('modalIcon').before(badge);
+
+    const extra = document.getElementById('modalExtra');
+    extra.innerHTML = '';
+    if (reward.special === 'spotify' && reward.link){
+        const a = document.createElement('a');
+        a.href = reward.link;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'modal-link-btn';
+        a.textContent = 'Abrir playlist en Spotify';
+        extra.appendChild(a);
+    } else if (reward.page){
+        const a = document.createElement('a');
+        a.href = reward.page + '?code=' + encodeURIComponent(reward.code);
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'modal-link-btn';
+        a.textContent = 'Ver sorpresa';
+        extra.appendChild(a);
+    }
+
+    overlay.classList.add('visible');
+    anime({ targets: overlay, opacity: [0, 1], duration: 250, easing: 'easeOutQuad' });
+
+    const order = (RARITY_META[reward.rarity] || {}).order || 1;
+    anime.remove(card);
+    if (order <= 2){ anime({ targets: card, scale: [0.7, 1], rotate: ['-4deg', '0deg'], opacity: [0, 1], duration: 420, easing: 'easeOutBack' }); }
+    else if (order === 3){ anime({ targets: card, scale: [0.5, 1.06, 1], rotate: ['-8deg', '3deg', '0deg'], opacity: [0, 1], duration: 600, easing: 'easeOutElastic(1, .7)' }); }
+    else if (order === 4){ anime({ targets: card, scale: [0.4, 1.1, 0.96, 1], rotate: ['-10deg', '5deg', '-2deg', '0deg'], opacity: [0, 1], duration: 750, easing: 'easeOutElastic(1, .5)' }); }
+    else { anime({ targets: card, scale: [0.2, 1.15, 0.95, 1], rotate: ['-180deg', '8deg', '-3deg', '0deg'], opacity: [0, 1], duration: 950, easing: 'easeOutElastic(1, .55)' }); }
+
+    if (typeof confetti === 'function'){
+        const particleCount = order >= 5 ? 160 : order >= 3 ? 100 : 70;
+        const colors = order >= 5 ? ['#ffd60a', '#ff2f6e', '#2dd4ff', '#ffffff', '#7c3aed'] : undefined;
+        confetti({ particleCount, spread: order >= 4 ? 100 : 60, origin: { y: 0.5 }, scalar: order >= 4 ? 1.1 : 0.9, colors });
+    }
+}
+
+function closeCouponModal(){
+    const overlay = document.getElementById('couponModal');
+    anime({ targets: overlay, opacity: [1, 0], duration: 200, easing: 'easeInQuad', complete: () => overlay.classList.remove('visible') });
+}
+
+document.getElementById('modalCloseBtn').addEventListener('click', closeCouponModal);
+document.getElementById('couponModal').addEventListener('click', (e) => { if (e.target.id === 'couponModal') closeCouponModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape'){ closeCouponModal(); skipBrawlBox(); } });
+
+/* playBrawlBoxSequence / closeBrawlBox / skipBrawlBox vienen de shared.js.
+   closeBrawlBox() invoca window.brawlBoxCompleted cuando termina (o al saltar). */
+function finalizeUnlock(reward){
+    renderCouponCard(reward);
+}
+window.brawlBoxCompleted = (r) => { if (r) finalizeUnlock(r); };
+
+function unlockCoupon(){
+    const input = document.getElementById('coupon-code');
+    const code = input.value.trim().toUpperCase();
+    if (!code) return;
+
+    const reward = REWARDS_BY_CODE[code];
+    if (reward && !unlockedCodes.has(code)){
+        unlockedCodes.add(code);
+        saveCoupons();
+        input.value = '';
+        if (reward.rarity === 'ultralegendario'){
+            playBrawlBoxSequence(reward);
+        } else {
+            finalizeUnlock(reward);
+            if (typeof confetti === 'function'){ confetti({ particleCount: 100, spread: 80, origin: { y: 0.7 } }); }
+            openCouponModal(reward);
+        }
+    } else if (unlockedCodes.has(code)){
+        showToast('Ya canjeaste este código');
+        anime({ targets: input, translateX: [-6,6,-6,6,0], duration: 300, easing: 'easeInOutSine' });
+    } else {
+        showToast('Código inválido, intenta otra palabra');
+        anime({ targets: input, translateX: [-6,6,-6,6,0], duration: 300, easing: 'easeInOutSine' });
+    }
+}
+document.getElementById('redeemBtn').addEventListener('click', unlockCoupon);
+document.getElementById('coupon-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') unlockCoupon(); });
+
+function renderAdminPanel(){
+    const panel = document.getElementById('adminPanel');
+    if (!panel) return;
+    panel.innerHTML = '';
+    REWARD_DEFINITIONS.forEach(r => {
+        const rarityName = (RARITY_META[r.rarity] || {}).name || r.rarity;
+        const row = document.createElement('div');
+        row.style.cssText = `display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:0.75rem; padding:8px 10px; border:2px solid var(--ink); background:var(--card);`;
+        row.innerHTML = `<span class="admin-icon" style="font-size:1.1rem; display:flex;">${r.icon}</span><span style="flex:1;"><strong>${r.code}</strong> — ${r.title} <em style="opacity:0.6;">(${rarityName})</em></span>`;
+        panel.appendChild(row);
+    });
+}
+
+/* Panel oculto para Isaac: 3 toques rápidos en la pista lo revelan. */
+(function initAdminReveal(){
+    const hint = document.getElementById('adminHint');
+    const panel = document.getElementById('adminPanel');
+    if (!hint || !panel) return;
+    let taps = 0;
+    let resetTimer = null;
+    const reveal = () => {
+        panel.style.display = 'flex';
+        anime({ targets: panel, opacity: [0, 1], translateY: [14, 0], duration: 300, easing: 'easeOutQuad' });
+        hint.textContent = 'códigos visibles para ti (no se los muestres a Ana 😉)';
+    };
+    hint.addEventListener('click', () => {
+        taps++;
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => { taps = 0; }, 1500);
+        if (taps >= 3) reveal();
+    });
+    /* Sin atajo de teclado directo: Enter/Espacio disparan el mismo contador de toques vía click */
+})();
+
+renderAdminPanel();
+restoreCoupons();
+maybeShowEmptyState();
+
+function restoreCoupons(){
+    const sorted = [...unlockedCodes].map(c => REWARDS_BY_CODE[c.toUpperCase()]).filter(Boolean)
+        .sort((a, b) => (RARITY_META[b.rarity]?.order || 0) - (RARITY_META[a.rarity]?.order || 0));
+    sorted.forEach(r => renderCouponCard(r, true));
+    const count = document.getElementById('coupon-count');
+    if (count) count.textContent = unlockedCodes.size;
+}
+
+/* ==========================================================================
+   ENHANCED INTERACTIVE EFFECTS PER THEME
+   ========================================================================== */
+
+// Theme-specific click/touch effects
+function createThemeParticles(x, y) {
+    const theme = document.body.className.replace('theme-', '');
+    const colors = {
+        cooky: ['#ec1560', '#f0b429', '#ff9ec2', '#fffaf9'],
+        joji: ['#d43a53', '#8a97b8', '#4a5568', '#eeece7'],
+        brawl: ['#ffd60a', '#ff2d55', '#17d4ff', '#7c3aed']
+    };
+    const themeColors = colors[theme] || colors.cooky;
+    
+    for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'star-particle';
+        particle.style.cssText = `
+            left: ${x}px;
+            top: ${y}px;
+            --tx: ${(Math.random() - 0.5) * 200}px;
+            --ty: ${(Math.random() - 0.5) * 200}px;
+            background: ${themeColors[Math.floor(Math.random() * themeColors.length)]};
+            box-shadow: 0 0 10px ${themeColors[Math.floor(Math.random() * themeColors.length)]};
+        `;
+        document.body.appendChild(particle);
+        particle.addEventListener('animationend', () => particle.remove(), { once: true });
+        setTimeout(() => particle.remove(), 1200);
+    }
+}
+
+// Add click/touch particle effects
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('button, a, input, .tab-btn, .mp3-btn')) {
+        createThemeParticles(e.clientX, e.clientY);
+    }
+});
+
+document.addEventListener('touchstart', (e) => {
+    if (!e.target.closest('button, a, input, .tab-btn, .mp3-btn')) {
+        const touch = e.touches[0];
+        createThemeParticles(touch.clientX, touch.clientY);
+    }
+}, { passive: true });
+
+// Enhanced vinyl interaction for Cooky theme (listener añadido una sola vez)
+let vinylEnhanced = false;
+function enhanceVinylInteraction() {
+    if (vinylEnhanced) return;
+    vinylEnhanced = true;
+    const vinyl = document.querySelector('.mini-vinyl');
+    if (!vinyl) return;
+    vinyl.style.cursor = 'pointer';
+    vinyl.addEventListener('click', () => {
+        vinyl.style.animation = 'none';
+        void vinyl.offsetWidth; // trigger reflow
+        vinyl.style.animation = 'legendarySpin 0.5s linear 3, legendarySpin 4s linear infinite';
+        const r = vinyl.getBoundingClientRect();
+        createThemeParticles(r.left + 30, r.top + 30);
+    });
+}
+
+// Enhanced rain effect for Joji theme (idempotente)
+function enhanceJojiRain() {
+    if (document.body.classList.contains('theme-joji') && !document.querySelector('.joji-rain-overlay')) {
+        const rainContainer = document.createElement('div');
+        rainContainer.className = 'joji-rain-overlay';
+        rainContainer.style.cssText = `
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.15;
+            background-image: 
+                repeating-linear-gradient(100deg, transparent 0px, transparent 38px, rgba(212,58,83,0.1) 39px, transparent 41px);
+            animation: rainfall 6s linear infinite;
+            animation-play-state: var(--anim-play, running);
+        `;
+        document.body.appendChild(rainContainer);
+    }
+}
+
+// Enhanced star burst for Brawl Stars theme (idempotente)
+function enhanceBrawlStars() {
+    if (document.body.classList.contains('theme-brawl') && !document.querySelector('.brawl-floating-star')) {
+        for (let i = 0; i < 5; i++) {
+            const star = document.createElement('div');
+            star.className = 'brawl-floating-star';
+            star.style.cssText = `
+                position: fixed;
+                width: ${15 + Math.random() * 20}px;
+                height: ${15 + Math.random() * 20}px;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                background: ${['#ffd60a', '#17d4ff', '#ff2d55', '#7c3aed'][Math.floor(Math.random() * 4)]};
+                clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+                opacity: 0.2;
+                pointer-events: none;
+                z-index: 1;
+                animation: brawlStarFloat ${8 + Math.random() * 10}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 5}s;
+            `;
+            document.body.appendChild(star);
+        }
+    }
+}
+
+// Initialize theme enhancements (idempotente, seguro de re-ejecutar)
+function initThemeEnhancements() {
+    enhanceVinylInteraction();
+    enhanceJojiRain();
+    enhanceBrawlStars();
+}
+
+// Re-ejecutar sólo cuando cambia la clase del tema
+let themeObserver = null;
+function watchThemeChanges() {
+    if (themeObserver) return;
+    themeObserver = new MutationObserver(() => {
+        requestAnimationFrame(initThemeEnhancements);
+    });
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { initThemeEnhancements(); watchThemeChanges(); });
+} else {
+    initThemeEnhancements();
+    watchThemeChanges();
+}
+
+// Add brawl star float animation dynamically (una sola vez)
+if (!document.getElementById('brawlStarKeyframes')) {
+    const brawlStarStyle = document.createElement('style');
+    brawlStarStyle.id = 'brawlStarKeyframes';
+    brawlStarStyle.textContent = `
+        @keyframes brawlStarFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.2; }
+            25% { transform: translateY(-30px) rotate(90deg) scale(1.2); opacity: 0.4; }
+            50% { transform: translateY(10px) rotate(180deg) scale(0.9); opacity: 0.3; }
+            75% { transform: translateY(-20px) rotate(270deg) scale(1.1); opacity: 0.5; }
+        }
+    `;
+    document.head.appendChild(brawlStarStyle);
+}
+</script>
+
+<script src="./pencil-trail.js"></script>
+</body>
+</html>
