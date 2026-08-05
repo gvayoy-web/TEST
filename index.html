@@ -11,6 +11,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="./shared.js"></script>
+<script>// name: add-brawlbox-completed-handler.js
+// Agregar esto después de shared.js para que window.brawlBoxCompleted exista.
+window.brawlBoxCompleted = function(reward) {
+  try {
+    if (reward && reward.page) {
+      // Si quieres enviar también el código como query param:
+      const codeParam = reward.code ? (reward.page.includes('?') ? '&' : '?') + 'code=' + encodeURIComponent(reward.code) : '';
+      window.location.href = reward.page + (codeParam || '');
+      return;
+    }
+    // Si no hay reward o page definida, volver al cofre
+    if (typeof goBackToChest === 'function') {
+      goBackToChest();
+      return;
+    }
+    // Fallback: recargar o ir al index
+    window.location.href = './index.html#brawl';
+  } catch (err) {
+    console.error('brawlBoxCompleted handler failed:', err);
+    window.location.href = './index.html#brawl';
+  }
+};</script>
 <style>
 /* ==========================================================================
    0. RESET + VARIABLES BASE — sistema neo-brutalista unificado "Para Ti"
