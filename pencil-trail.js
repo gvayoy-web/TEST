@@ -24,13 +24,18 @@
     var active = 0;
     var lastSpawn = 0;
     var touchState = null;
-    var MAX_ACTIVE = 140;
+    var MAX_DOTS = 40;
+
+    var dots = [];
 
     function spawn(x, y, nx, ny, speed) {
-        if (active >= MAX_ACTIVE) return;
         var dx = nx - x, dy = ny - y;
         var len = Math.sqrt(dx * dx + dy * dy);
         if (len < 5) return;
+        if (dots.length >= MAX_DOTS) {
+            var oldest = dots.shift();
+            if (oldest && oldest.parentNode) oldest.remove();
+        }
         var ang = Math.atan2(dy, dx) * 180 / Math.PI;
         var p = document.createElement('div');
         p.className = 'pencil-trail';
@@ -41,10 +46,18 @@
         p.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + w + 'px;height:' + h + 'px;' +
             'background:' + color + ';box-shadow:0 0 6px ' + color + ';--pr:' + ang + 'deg;';
         (document.body || document.documentElement).appendChild(p);
-        active++;
-        p.addEventListener('animationend', function () { p.remove(); active--; }, { once: true });
+        dots.push(p);
+        p.addEventListener('animationend', function () {
+            var idx = dots.indexOf(p);
+            if (idx !== -1) dots.splice(idx, 1);
+            p.remove();
+        }, { once: true });
         setTimeout(function () {
-            if (p.isConnected) { p.remove(); active--; }
+            if (p.parentNode) {
+                var idx = dots.indexOf(p);
+                if (idx !== -1) dots.splice(idx, 1);
+                p.remove();
+            }
         }, 1100);
     }
 

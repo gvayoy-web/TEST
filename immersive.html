@@ -7,6 +7,8 @@
 <title>Experiencia · Para Ti</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Reenie+Beanie&family=Space+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./shared.css">
 <script src="./shared.js"></script>
@@ -235,11 +237,12 @@ body.theme-brawl .vibe-card { background: rgba(69,27,120,0.88) !important; color
 
     /* notas cortas por experiencia (edítalas aquí para cada código) */
     const NOTES_BY_CODE = {
-        JOJI: 'ponte los audífonos, mira la lluvia y quédate un rato. así me siento cada vez que pienso en ti.',
-        PINTURA: 'trae tus brochas. yo pongo el lienzo, la música y toda la paciencia del mundo.',
-        BTS: 'elige tu concierto favorito. yo traigo las porras, los snacks y ganas de verte feliz.',
-        FNAF: 'tú elige de quién te escondes. yo te cubro las espaldas... o lo intento.',
-        ANIME: 'empieza la maratón. tú eliges la serie, yo juro mantenerte los snacks a tiempo.'
+        JOJI: 'Sé que mucho te gusta Joji, y quiero que lo compartas conmigo. Pon tu canción favorita de Joji, mira el techo y quédate un rato sintiendo la música. Así me siento cada vez que pienso en ti.',
+        PINTURA: 'Pintamos algo juntos. Tú eliges los colores, como soy péssimo pintando, doy apoyo emocional.',
+        BTS: 'Cupón válido para una noche de música y conciertos de BTS juntos.',
+        FNAF: 'Noche de FNAF con sustos, pizza y muchos besos. Miremos o juguemos esa franquicia que nos unió y, gracias a ella, no nos separaremos.',
+        ANIME: 'Maratón de anime completo. Tú eliges la serie, yo traigo las palomitas. Sé que te encanta el anime, y como tu novio quiero verte feliz viendo lo que te gusta a mi lado.',
+        FELICES16: 'Hoy cumples años, y yo quiero que sigas cumpliendo más a la par mía. Espero que me des pastel JAJAJA. Feliz cumpleañitos mi amor, cuídate y recuerda que eres la mujer más hermosa del mundo.'
     };
 
     const reward = getRewardFromContext();
@@ -289,7 +292,7 @@ body.theme-brawl .vibe-card { background: rgba(69,27,120,0.88) !important; color
                     <span class="error-icon" aria-hidden="true">🎧</span>
                     <h2>ESTA EXPERIENCIA ESPERA TU CÓDIGO</h2>
                     <p>Abre el cofre y canjea un código para desbloquear este ambiente.</p>
-                    <a class="btn-volver" style="position:static; margin:0 auto;" href="./index.html#brawl">← volver al cofre</a>
+                    <a class="btn-volver" style="position:static; margin:0 auto;" href="javascript:void(0)" onclick="goBackToChest()">← volver al cofre</a>
                 </div>
             </div>`;
     }
@@ -314,7 +317,7 @@ body.theme-brawl .vibe-card { background: rgba(69,27,120,0.88) !important; color
                     <p class="vibe-note">${note}</p>
                     ${linkHtml}
                     <div class="vibe-actions">
-                        <a class="btn-volver" href="./index.html#brawl">← volver al cofre</a>
+                        <a class="btn-volver" href="javascript:void(0)" onclick="goBackToChest()">← volver al cofre</a>
                     </div>
                 </div>
             </div>`;
@@ -333,6 +336,9 @@ body.theme-brawl .vibe-card { background: rgba(69,27,120,0.88) !important; color
     /* ==========================================================================
        ENHANCED INTERACTIVE EFFECTS PER THEME (immersive.html)
        ========================================================================== */
+    const _trailParticles = [];
+    const MAX_TRAIL_PARTICLES = 25;
+
     function createThemeParticles(x, y) {
         const theme = document.body.className.replace('theme-', '');
         const colors = {
@@ -341,7 +347,7 @@ body.theme-brawl .vibe-card { background: rgba(69,27,120,0.88) !important; color
             brawl: ['#ffd60a', '#ff2d55', '#17d4ff', '#7c3aed']
         };
         const themeColors = colors[theme] || colors.cooky;
-        
+
         for (let i = 0; i < 6; i++) {
             const particle = document.createElement('div');
             particle.className = 'star-particle';
@@ -353,10 +359,24 @@ body.theme-brawl .vibe-card { background: rgba(69,27,120,0.88) !important; color
                 background: ${themeColors[Math.floor(Math.random() * themeColors.length)]};
                 box-shadow: 0 0 10px ${themeColors[Math.floor(Math.random() * themeColors.length)]};
             `;
-        document.body.appendChild(particle);
-        particle.addEventListener('animationend', () => particle.remove(), { once: true });
-        setTimeout(() => particle.remove(), 1100);
-    }
+            document.body.appendChild(particle);
+            _trailParticles.push(particle);
+            particle.addEventListener('animationend', () => {
+                const idx = _trailParticles.indexOf(particle);
+                if (idx !== -1) _trailParticles.splice(idx, 1);
+                particle.remove();
+            }, { once: true });
+            setTimeout(() => {
+                const idx = _trailParticles.indexOf(particle);
+                if (idx !== -1) _trailParticles.splice(idx, 1);
+                particle.remove();
+            }, 1200);
+        }
+
+        while (_trailParticles.length > MAX_TRAIL_PARTICLES) {
+            const oldest = _trailParticles.shift();
+            if (oldest) oldest.remove();
+        }
     }
     
     document.addEventListener('click', (e) => {

@@ -390,7 +390,7 @@ body::after {
 .rarity-tag.rarity-especial { background: #0284c7; color: #fff; border-color: #0c4a6e; }
 .rarity-tag.rarity-super-raro { background: #ec1789; color: #fff; border-color: #7a0a52; }
 .rarity-tag.rarity-mitico { background: #ea580c; color: #fff; border-color: #7a3800; }
-.rarity-tag.rarity-legendario { background: #10021f; color: #ffd60a; border-color: #ffd60a; }
+.rarity-tag.rarity-legendario { background: #10021f; color: #ffd60a !important; border-color: #ffd60a; }
 .rarity-tag.rarity-ultralegendario { background: #ffd60a; color: #10021f; border-color: #ffd60a; }
 @media (hover: hover) {
     .rarity-tag:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }

@@ -212,7 +212,7 @@ canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edge
   <div id="super-banner">⚡ ¡SÚPER ACTIVADO! ⚡</div>
 
   <div id="main-menu" class="overlay-center">
-    <button type="button" class="gift-menu-btn" id="btn-gift-menu" onclick="window.location.href='./index.html#brawl'" aria-label="Volver al cofre">🎁</button>
+    <button type="button" class="gift-menu-btn" id="btn-gift-menu" onclick="goBackHome()" aria-label="Volver al cofre">🎁</button>
     <div class="neo-box">
       <h1 class="game-title">GUNGEON: 19 LIVES 🏐</h1>
       <p class="game-subtitle">Brawl Pass Edición Especial</p>
@@ -1755,7 +1755,14 @@ function toggleMute() {
   document.getElementById('btn-mute').innerText = muted ? '🔇' : '🔊';
 }
 function goBackHome() {
-  window.location.href = './index.html#brawl';
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.close();
+    setTimeout(function() {
+      if (!window.closed) window.location.href = './index.html#brawl';
+    }, 100);
+  }
 }
 
 document.getElementById('btn-pause').addEventListener('click', togglePause);

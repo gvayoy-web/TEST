@@ -7,6 +7,8 @@
 <title>Carta · Para Ti</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Reenie+Beanie&family=Space+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./shared.css">
 <script src="./shared.js"></script>
@@ -172,30 +174,6 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
 
 @media (max-width: 400px) { .story-note { transform: rotate(-0.75deg); } }
 
-/* ===== LUCYDAVID — diseño único ===== */
-.lucy-container{ position: relative; max-width: 560px; margin: 50px auto 30px; }
-.lucy-bg-hearts{ position: absolute; inset: -30px; pointer-events: none; z-index: 0; overflow: hidden; }
-.lucy-card{ position: relative; z-index: 1; background: linear-gradient(160deg, #fff9f0 0%, #fef5ec 50%, #fdf0e4 100%); border: 2px solid #e8c4a8; border-radius: 8px; overflow: hidden; box-shadow: 8px 8px 0 #e8c4a8, 0 0 40px rgba(232,196,168,0.2); }
-.lucy-header{ background: linear-gradient(90deg, rgba(176,35,59,0.08), rgba(240,180,41,0.08)); border-bottom: 1px solid rgba(232,196,168,0.5); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
-.lucy-badge{ font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: #b0233b; border: 1px solid rgba(176,35,59,0.3); padding: 4px 10px; border-radius: 2px; background: rgba(255,255,255,0.6); }
-.lucy-dots{ display: flex; gap: 6px; }
-.lucy-dots .dot{ width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(232,196,168,0.5); }
-.lucy-dots .dot:nth-child(1){ background: #fda4af; }
-.lucy-dots .dot:nth-child(2){ background: #f0b429; }
-.lucy-dots .dot:nth-child(3){ background: #b0233b; }
-.lucy-body{ padding: 28px 24px 24px; }
-.lucy-kicker{ font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #b0233b; margin-bottom: 8px; font-weight: 700; }
-.lucy-title{ font-family: 'Fraunces', serif; font-style: italic; font-weight: 700; font-size: 2.6rem; color: #b0233b; margin: 0 0 10px; line-height: 1.1; }
-.lucy-divider{ font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.24em; text-align: center; color: #e8c4a8; margin-bottom: 20px; }
-.lucy-photo-frame{ text-align: center; margin: 0 auto 22px; }
-.lucy-photo-inner{ width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; background: linear-gradient(135deg, #fda4af, #b0233b); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(176,35,59,0.3), inset 0 2px 10px rgba(255,255,255,0.3); }
-.lucy-initial{ font-family: 'Fraunces', serif; font-style: italic; font-weight: 700; font-size: 3.5rem; color: #fff; }
-.lucy-photo-caption{ font-family: 'Reenie Beanie', cursive; font-size: 1.1rem; color: #b0233b; margin-top: 10px; }
-.lucy-message{ margin-bottom: 22px; }
-.lucy-text{ font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; line-height: 1.75; color: #4a3528; margin-bottom: 14px; font-weight: 500; }
-.lucy-signature{ display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px dashed rgba(232,196,168,0.6); }
-.lucy-sig-text{ font-family: 'Reenie Beanie', cursive; font-size: 1.6rem; color: #b0233b; transform: rotate(-1.5deg); }
-.lucy-sig-stamp{ font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(176,35,59,0.6); border: 1px solid rgba(176,35,59,0.3); padding: 4px 8px; border-radius: 2px; transform: rotate(3deg); }
 </style>
 </head>
 <body class="theme-cooky">
@@ -213,9 +191,18 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
     
     <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
     <div class="read-progress" id="readProgress" aria-hidden="true"><div class="read-progress-fill" id="readProgressFill"></div></div>
-    <a class="btn-volver" href="./index.html#brawl">← volver al cofre</a>
+    <a class="btn-volver" href="javascript:void(0)" onclick="goBackToChest()">← volver al cofre</a>
     <main class="container" id="app"></main>
 <script>
+function loadConfetti() {
+    return new Promise((resolve) => {
+        if (typeof confetti === 'function') return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
+        s.onload = resolve;
+        document.head.appendChild(s);
+    });
+}
 (function initLetterEpic(){
     const app = document.getElementById('app');
     const reward = getRewardFromContext();
@@ -232,7 +219,7 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
                     <span class="error-icon" aria-hidden="true">💌</span>
                     <h2>ESTA CARTA ESPERA TU CÓDIGO</h2>
                     <p>Abre el cofre y canjea un código para desbloquear esta carta.</p>
-                    <a class="btn-volver" style="position:static; margin:0 auto;" href="./index.html#brawl">← volver al cofre</a>
+                    <a class="btn-volver" style="position:static; margin:0 auto;" href="javascript:void(0)" onclick="goBackToChest()">← volver al cofre</a>
                 </div>
             </div>`;
     }
@@ -242,42 +229,6 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
         const rarityName = (RARITY_META[r.rarity] || {}).name || r.rarity;
         const chapters = data ? data.chapters : [];
         const finalNote = data ? data.final : r.desc;
-
-        /* ===== LUCYDAVID — diseño único ===== */
-        if (r.code === 'LUCYDAVID') {
-            app.innerHTML = `
-                <div class="lucy-container">
-                    <div class="lucy-bg-hearts" id="lucyHearts"></div>
-                    <div class="lucy-card">
-                        <div class="lucy-header">
-                            <span class="lucy-badge">ÉPICO</span>
-                            <div class="lucy-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-                        </div>
-                        <div class="lucy-body">
-                            <p class="lucy-kicker">vale personal</p>
-                            <h1 class="lucy-title">Lucy David</h1>
-                            <div class="lucy-divider">✦ — · — ✦</div>
-                            <div class="lucy-photo-frame">
-                                <div class="lucy-photo-inner">
-                                    <div class="lucy-initial">L</div>
-                                </div>
-                                <p class="lucy-photo-caption">un momento solo tuyo y mío</p>
-                            </div>
-                            <div class="lucy-message">
-                                <p class="lucy-text">Hay historias que empiezan como cualquier otra y terminan siendo la única que importa. La nuestra es así.</p>
-                                <p class="lucy-text">Tú y yo tenemos esa dinámica de las parejas que se conocen de verdad: reírnos de lo mismo, entendernos sin hablar y defender el uno al otro sin dudar.</p>
-                                <p class="lucy-text">Este vale es un recordatorio: pase lo que pase, siempre hay un momento que es solo tuyo y mío.</p>
-                            </div>
-                            <div class="lucy-signature">
-                                <span class="lucy-sig-text">siempre nosotros dos</span>
-                                <span class="lucy-sig-stamp">para Ana ✦</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            initLucyEffects();
-            return;
-        }
 
         if (!data) { renderError(); return; }
 
@@ -302,7 +253,7 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
                 </div>`;
 
             /* un marco de foto entre el capítulo uno y el resto, con el sistema story-frame */
-            if (i === 0 && chapters.length > 1) {
+            if (i === 0 && chapters.length > 1 && r.code !== 'CARTA' && r.code !== 'SIEMPRE') {
                 html += `
                     <!-- MARCO DE FOTO: reemplaza .story-frame-placeholder por tu foto, así:
                          <img class="story-frame-media" src="tu-foto.jpg" alt="nosotros">
@@ -327,7 +278,7 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
                         </span>
                     </div>
                     <div class="letter-actions">
-                        <a class="btn-volver" href="./index.html#brawl">← volver al cofre</a>
+    <a class="btn-volver" href="javascript:void(0)" onclick="goBackToChest()">← volver al cofre</a>
                     </div>
                 </div>
             </div>`;
@@ -352,7 +303,9 @@ body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6),
         const sigObs = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 80, origin: { y: 0.85 }, colors: ['#ec1560', '#f0b429', '#ffffff'] });
+                    loadConfetti().then(() => {
+                        if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 80, origin: { y: 0.85 }, colors: ['#ec1560', '#f0b429', '#ffffff'] });
+                    });
                     sigObs.disconnect();
                 }
             });
@@ -467,22 +420,32 @@ function addCookyFloatingElements() {
 }
 
 // Click/tap heart burst effect
+let lastClick = 0;
 document.addEventListener('click', (e) => {
     if (!e.target.closest('button, a, .btn-volver')) {
+        if (Date.now() - lastClick < 200) return;
+        lastClick = Date.now();
         createCookyHeartBurst(e.clientX, e.clientY);
     }
 });
 
 document.addEventListener('touchstart', (e) => {
     if (!e.target.closest('button, a, .btn-volver')) {
+        if (Date.now() - lastClick < 200) return;
+        lastClick = Date.now();
         const touch = e.touches[0];
         createCookyHeartBurst(touch.clientX, touch.clientY);
     }
 }, { passive: true });
 
+const cookyBurstParticles = [];
 function createCookyHeartBurst(x, y) {
     const colors = ['#ec1560', '#f0b429', '#ff9ec2', '#fffaf9'];
     for (let i = 0; i < 10; i++) {
+        if (cookyBurstParticles.length >= 30) {
+            const oldest = cookyBurstParticles.shift();
+            if (oldest && oldest.parentNode) oldest.remove();
+        }
         const particle = document.createElement('div');
         particle.style.cssText = `
             position: fixed;
@@ -498,9 +461,18 @@ function createCookyHeartBurst(x, y) {
             --tx: ${(Math.random() - 0.5) * 250}px;
             --ty: ${(Math.random() - 0.5) * 250}px;
         `;
+        cookyBurstParticles.push(particle);
         document.body.appendChild(particle);
-        particle.addEventListener('animationend', () => particle.remove(), { once: true });
-        setTimeout(() => particle.remove(), 1100);
+        particle.addEventListener('animationend', () => {
+            const idx = cookyBurstParticles.indexOf(particle);
+            if (idx !== -1) cookyBurstParticles.splice(idx, 1);
+            particle.remove();
+        }, { once: true });
+        setTimeout(() => {
+            const idx = cookyBurstParticles.indexOf(particle);
+            if (idx !== -1) cookyBurstParticles.splice(idx, 1);
+            particle.remove();
+        }, 1500);
     }
 }
 

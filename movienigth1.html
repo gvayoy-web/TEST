@@ -7,10 +7,11 @@
 <title>Noche de Película — Para Ti</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Reenie+Beanie&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <!-- Incluimos bibliotecas para efectos -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
 <style>
 /* ============================================================
    SISTEMA DE DISEÑO NEO-BRUTALISTA CYBERPUNK (Optimizado Móvil)
@@ -676,7 +677,7 @@ body::after{
 <div class="floor-grid" aria-hidden="true"></div>
 
 <!-- BOTÓN VOLVER -->
-<button type="button" class="btn-volver" onclick="window.location.href='./index.html#brawl'">← volver al cofre</button>
+<button type="button" class="btn-volver" onclick="goBackToChest()">← volver al cofre</button>
 
 <main class="cinema-container" role="main">
 
@@ -827,24 +828,25 @@ body::after{
 
   const selectedSeats = new Set();
 
-  // --- Inicialización ---
-  function init() {
-    generateSeats();
-    setupEventListeners();
-    setMinimumDate();
-    
-    // Animación de entrada de elementos
-    if (typeof anime !== 'undefined') {
-      anime({
-        targets: '.cinema-heading, .movie-input-section, .cinema-screen-wrapper, .seats-main-wrapper, .butacas-counter, .movie-date-section',
-        opacity: [0, 1],
-        translateY: [20, 0],
-        delay: anime.stagger(100),
-        duration: 600,
-        easing: 'easeOutExpo'
-      });
-    }
-  }
+   // --- Inicialización ---
+   function init() {
+     generateSeats();
+     setupEventListeners();
+     setMinimumDate();
+   }
+
+   function playEntryAnimation() {
+     if (typeof anime !== 'undefined') {
+       anime({
+         targets: '.cinema-heading, .movie-input-section, .cinema-screen-wrapper, .seats-main-wrapper, .butacas-counter, .movie-date-section',
+         opacity: [0, 1],
+         translateY: [20, 0],
+         delay: anime.stagger(100),
+         duration: 600,
+         easing: 'easeOutExpo'
+       });
+     }
+   }
 
   // --- Configurar Eventos ---
   let screenActiveTimeout;
@@ -1062,7 +1064,18 @@ body::after{
     dateInput.setAttribute('min', today);
   }
 
-  function launchConfetti() {
+  function loadConfetti() {
+    return new Promise((resolve) => {
+      if (typeof confetti === 'function') return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
+      s.onload = resolve;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function launchConfetti() {
+    await loadConfetti();
     if (typeof confetti === 'undefined') return;
     confetti({
       particleCount: 100,
@@ -1073,60 +1086,70 @@ body::after{
   }
 
 // Ejecutar al cargar
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+   if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', () => { init(); playEntryAnimation(); });
+   } else {
+     init();
+     if (document.readyState === 'complete') {
+       window.addEventListener('load', playEntryAnimation);
+     } else {
+       playEntryAnimation();
+     }
+   }
 
   /* ==========================================================================
      MOVIE NIGHT ENHANCED EFFECTS (movienigth1.html)
      ========================================================================== */
 
-  // Floating film strips and popcorn particles
-  function addMovieNightElements() {
-    // Floating film strips
-    for (let i = 0; i < 3; i++) {
+   // Floating film strips and popcorn particles
+   function addMovieNightElements() {
+     // Remove old floating elements if re-initialized
+     document.querySelectorAll('.movie-night-float').forEach(el => el.remove());
+
+     // Floating film strips
+     for (let i = 0; i < 3; i++) {
         const film = document.createElement('div');
-        film.style.cssText = `
-            position: fixed;
-            width: ${60 + Math.random() * 40}px;
-            height: ${20 + Math.random() * 15}px;
-            left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
-            background: repeating-linear-gradient(90deg, #000 0 8px, #fff 8px 16px);
-            border: 2px solid #ff2f6e;
-            border-radius: 3px;
-            opacity: 0.1;
-            pointer-events: none;
-            z-index: 1;
-            animation: movieFilmFloat ${15 + Math.random() * 10}s ease-in-out infinite;
-            animation-delay: ${Math.random() * 8}s;
-        `;
-        document.body.appendChild(film);
-    }
-    
-    // Floating popcorn
-    for (let i = 0; i < 5; i++) {
-        const popcorn = document.createElement('div');
-        popcorn.style.cssText = `
-            position: fixed;
-            width: ${10 + Math.random() * 12}px;
-            height: ${10 + Math.random() * 12}px;
-            left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
-            background: #fff8dc;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            box-shadow: 2px 2px 0 #ffd23f;
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 1;
-            animation: moviePopcornFloat ${12 + Math.random() * 8}s ease-in-out infinite;
-            animation-delay: ${Math.random() * 8}s;
-        `;
-        document.body.appendChild(popcorn);
-    }
-  }
+         film.className = 'movie-night-float';
+         film.style.cssText = `
+             position: fixed;
+             width: ${60 + Math.random() * 40}px;
+             height: ${20 + Math.random() * 15}px;
+             left: ${Math.random() * 100}%;
+             top: ${Math.random() * 100}%;
+             background: repeating-linear-gradient(90deg, #000 0 8px, #fff 8px 16px);
+             border: 2px solid #ff2f6e;
+             border-radius: 3px;
+             opacity: 0.1;
+             pointer-events: none;
+             z-index: 1;
+             animation: movieFilmFloat ${15 + Math.random() * 10}s ease-in-out infinite;
+             animation-delay: ${Math.random() * 8}s;
+         `;
+         document.body.appendChild(film);
+     }
+
+     // Floating popcorn
+     for (let i = 0; i < 5; i++) {
+         const popcorn = document.createElement('div');
+         popcorn.className = 'movie-night-float';
+         popcorn.style.cssText = `
+             position: fixed;
+             width: ${10 + Math.random() * 12}px;
+             height: ${10 + Math.random() * 12}px;
+             left: ${Math.random() * 100}%;
+             top: ${Math.random() * 100}%;
+             background: #fff8dc;
+             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+             box-shadow: 2px 2px 0 #ffd23f;
+             opacity: 0.15;
+             pointer-events: none;
+             z-index: 1;
+             animation: moviePopcornFloat ${12 + Math.random() * 8}s ease-in-out infinite;
+             animation-delay: ${Math.random() * 8}s;
+         `;
+         document.body.appendChild(popcorn);
+     }
+   }
   
   // Click/tap film/popcorn burst
   document.addEventListener('click', (e) => {
@@ -1142,30 +1165,44 @@ body::after{
     }
   }, { passive: true });
   
-  function createMovieBurst(x, y) {
-    const colors = ['#ff2f6e', '#ffd23f', '#ffffff', '#ff8c00'];
-    for (let i = 0; i < 10; i++) {
-      const particle = document.createElement('div');
-      const isPopcorn = Math.random() < 0.5;
-      particle.style.cssText = `
-        position: fixed;
-        left: ${x}px;
-        top: ${y}px;
-        width: ${isPopcorn ? '10px' : '6px'};
-        height: ${isPopcorn ? '10px' : '6px'};
-        background: ${colors[Math.floor(Math.random() * colors.length)]};
-        border-radius: ${isPopcorn ? '50% 50% 50% 50% / 60% 60% 40% 40%' : '3px'};
-        pointer-events: none;
-        z-index: 1000;
-        animation: movieBurst ${0.6 + Math.random() * 0.6}s ease-out forwards;
-        --tx: ${(Math.random() - 0.5) * 250}px;
-        --ty: ${(Math.random() - 0.5) * 250}px;
-      `;
-      document.body.appendChild(particle);
-      particle.addEventListener('animationend', () => particle.remove(), { once: true });
-      setTimeout(() => particle.remove(), 1300);
-    }
-  }
+   const movieBurstParticles = [];
+   function createMovieBurst(x, y) {
+     const colors = ['#ff2f6e', '#ffd23f', '#ffffff', '#ff8c00'];
+     for (let i = 0; i < 10; i++) {
+       if (movieBurstParticles.length >= 40) {
+         const oldest = movieBurstParticles.shift();
+         if (oldest && oldest.parentNode) oldest.remove();
+       }
+       const particle = document.createElement('div');
+       const isPopcorn = Math.random() < 0.5;
+       particle.style.cssText = `
+         position: fixed;
+         left: ${x}px;
+         top: ${y}px;
+         width: ${isPopcorn ? '10px' : '6px'};
+         height: ${isPopcorn ? '10px' : '6px'};
+         background: ${colors[Math.floor(Math.random() * colors.length)]};
+         border-radius: ${isPopcorn ? '50% 50% 50% 50% / 60% 60% 40% 40%' : '3px'};
+         pointer-events: none;
+         z-index: 1000;
+         animation: movieBurst ${0.6 + Math.random() * 0.6}s ease-out forwards;
+         --tx: ${(Math.random() - 0.5) * 250}px;
+         --ty: ${(Math.random() - 0.5) * 250}px;
+       `;
+       movieBurstParticles.push(particle);
+       document.body.appendChild(particle);
+       particle.addEventListener('animationend', () => {
+         const idx = movieBurstParticles.indexOf(particle);
+         if (idx !== -1) movieBurstParticles.splice(idx, 1);
+         particle.remove();
+       }, { once: true });
+       setTimeout(() => {
+         const idx = movieBurstParticles.indexOf(particle);
+         if (idx !== -1) movieBurstParticles.splice(idx, 1);
+         particle.remove();
+       }, 1300);
+     }
+   }
   
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', addMovieNightElements);

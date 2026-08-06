@@ -4,6 +4,13 @@
     la secuencia de apertura de la Mega Caja y los textos de las cartas.
     ========================================================================== */
 
+/* ---------- SERVICE WORKER ---------- */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+}
+
 /* ---------- AUDIO PERSISTENTE ENTRE PÁGINAS ----------
    Cada página crea su propio <audio> local pero restaura la posición y
    el estado desde localStorage. Así la música "continúa" al navegar. */
@@ -11,6 +18,13 @@ const AudioBridge = (function () {
     let audio = null;
     let listeners = [];
     let _lastDuration = 0;
+    let _currentSrc = '';
+
+    function basename(url) {
+        if (!url) return '';
+        try { return decodeURIComponent(new URL(url, location.href).pathname.split('/').pop() || ''); }
+        catch(e) { return url.split('/').pop() || ''; }
+    }
 
     function init() {
         audio = document.querySelector('#main-audio') || document.createElement('audio');
@@ -22,7 +36,7 @@ const AudioBridge = (function () {
             }
             emit({
                 type: 'audioState',
-                src: audio.src,
+                src: _currentSrc || audio.src,
                 currentTime: audio.currentTime,
                 duration: audio.duration || 0,
                 paused: audio.paused,
@@ -55,7 +69,8 @@ const AudioBridge = (function () {
         pause: function () { if (audio) audio.pause(); },
         load: function (src, time, autoplay) {
             if (!audio) return;
-            if (audio.src !== src) {
+            if (basename(audio.src) !== basename(src)) {
+                _currentSrc = src;
                 audio.src = src;
                 audio.currentTime = 0;
             }
@@ -107,144 +122,50 @@ const REWARD_DEFINITIONS = [
     { code: 'BESO', icon: SVGS.heart, label: 'vale especial', title: 'Beso', desc: 'Canjéalo para darte un gran beso, válido para siempre.', rarity: 'epico' },
     { code: 'CITA', icon: SVGS.sparkles, label: 'vale especial', title: 'Cita sorpresa', desc: 'Cita especial organizada 100% por mí.', rarity: 'epico' },
     { code: 'ABRAZO', icon: SVGS.heart2, label: 'vale emocional', title: 'Abrazo', desc: 'Un abrazo cálido y sincero que te calienta el alma. Válido por tiempo infinito.', rarity: 'epico' },
-    { code: 'LUCYDAVID', icon: SVGS.sparkles, label: 'vale personal', title: 'Lucy David', desc: 'Un momento solo para ti y tu persona especial.', rarity: 'epico', page: 'lucydavid.html' },
-    { code: 'CARTA', icon: SVGS.film, label: 'vale narrativo', title: 'Carta Secreta', desc: 'Una carta escrita a mano solo para ti. Léela con calma.', rarity: 'epico', page: 'letter-epic.html' },
-    { code: 'SONRISA', icon: SVGS.smile, label: 'vale feliz', title: 'Sonrisa Garantizada', desc: 'Un día entero dedicado a hacerte sonreír. Sin motivos, solo por alegrarte.', rarity: 'epico' },
-    { code: 'PELICULA', icon: SVGS.film, label: 'vale especial', title: 'Noche de película', desc: 'Cita de películas con tus botanas favoritas.', rarity: 'especial', page: 'movienigth1.html' },
-    { code: 'JOJI', icon: SVGS.music, label: 'vale musical', title: 'Lo-Fi Nights', desc: 'Playlist de Joji para esas noches en silencio contigo.', rarity: 'especial', page: 'immersive.html', theme: 'joji' },
-    { code: 'VOLEIBOL', icon: SVGS.volleyball, label: 'vale deportivo', title: 'Día de Voleibol', desc: 'Un día entero jugando voleibol juntos. Sin excusas.', rarity: 'especial', page: 'movienigth1.html' },
-    { code: 'PINTURA', icon: SVGS.palette, label: 'vale creativo', title: 'Sesión de Pintura', desc: 'Pintamos algo juntos. Tú eliges los colores, yo pongo la mano.', rarity: 'especial', page: 'immersive.html', theme: 'cooky' },
-    { code: 'KARAOKE', icon: SVGS.mic, label: 'vale musical', title: 'Karaoke Night', desc: 'Noche de karaoke con tus canciones favoritas. Tú cantas, yo te aplaudo.', rarity: 'especial' },
-    { code: 'BTS', icon: SVGS.music, label: 'vale kpop', title: 'BTS Marathon', desc: 'Maratón completa de conciertos y MV de BTS. Sin pausas.', rarity: 'super-raro', page: 'immersive.html', theme: 'cooky' },
-    { code: 'FNAF', icon: SVGS.check, label: 'vale de horror', title: 'Night Fright', desc: 'Noche de FNAF con sustos, pizza y compañía. ¿A quién le toca ser Foxy?', rarity: 'super-raro', page: 'immersive.html', theme: 'brawl' },
-    { code: 'ANIME', icon: SVGS.smile, label: 'vale otaku', title: 'Anime Marathon', desc: 'Maratón de anime completo. Tú eliges la serie, yo traigo los snacks.', rarity: 'super-raro', page: 'immersive.html', theme: 'cooky' },
-    { code: 'NOVIO', icon: SVGS.heart, label: 'vale de relación', title: 'Novio Oficial', desc: 'Ya no hay vuelta atrás. Eres mi persona, oficialmente.', rarity: 'mitico' },
-    { code: 'BESOINFINITO', icon: SVGS.heart, label: 'vale romántico', title: 'Beso Infinito', desc: 'Un beso que vale por todo el día. Canjeable en cualquier momento y lugar.', rarity: 'mitico', page: 'date-legendary.html' },
-    { code: 'AMO', icon: SVGS.heart, label: 'vale infinito', title: 'Amo', desc: 'Te amo. Con todas las letras, todas las vidas, todo.', rarity: 'legendario', page: 'date-legendary.html' },
-    { code: 'TEAMO', icon: SVGS.heart, label: 'vale infinito', title: 'Te Amo', desc: 'Las dos palabras más importantes. Dichas por mí, para ti.', rarity: 'legendario', page: 'date-legendary.html' },
-    { code: 'EKKOJINX', icon: SVGS.sparkles, label: 'vale geek', title: 'Ekko x Jinx', desc: 'El combo perfecto. Caos y protección en una sola pareja.', rarity: 'legendario', page: 'ekkojinx.html', theme: 'brawl' },
-    { code: '08/01/2026', icon: SVGS.calendar, label: 'fecha grabada', title: '08 / 01 / 2026', desc: 'Un día que quiero recordar siempre contigo.', rarity: 'legendario', page: 'date-legendary.html' },
-    { code: 'CUMPLEANOS', icon: SVGS.smile, label: 'vale de celebración', title: 'Cumpleaños Perfecto', desc: 'Hoy es tu día. Todo lo que quieras, donde quieras, como quieras.', rarity: 'legendario', page: 'date-legendary.html' },
-    { code: 'SPOTIFY', icon: SVGS.headphones, label: 'canción para ti', title: 'Tu playlist', desc: 'Una playlist hecha por mí, con canciones que me recuerdan a ti.', rarity: 'legendario', special: 'spotify', link: 'https://open.spotify.com/playlist/TU_PLAYLIST_AQUI' },
+    { code: 'CARTA', icon: SVGS.film, label: 'vale narrativo', title: 'Carta Secreta', desc: 'Carta secreta escondida, ¡clickea para ver!', rarity: 'epico', page: 'letter-epic.html' },
+    { code: 'PELICULA', icon: SVGS.film, label: 'vale especial', title: 'Noche de película', desc: 'Noche de películas donde quieras, ¡cuando quieras!', rarity: 'especial', page: 'movienigth1.html' },
+    { code: 'JOJI', icon: SVGS.music, label: 'vale musical', title: 'Lo-Fi Nights', desc: 'Cupón para escuchar juntos una playlist de Joji.', rarity: 'especial', page: 'immersive.html', theme: 'joji' },
+    { code: 'VOLEIBOL', icon: SVGS.volleyball, label: 'vale deportivo', title: 'Día de Voleibol', desc: 'Un día entero jugando voleibol juntos. Sin excusas.', rarity: 'especial' },
+    { code: 'PINTURA', icon: SVGS.palette, label: 'vale creativo', title: 'Sesión de Pintura', desc: 'Pintamos algo juntos. Tú eliges los colores, como soy péssimo pintando, doy apoyo emocional.', rarity: 'especial', page: 'immersive.html', theme: 'cooky' },
+    { code: 'BTS', icon: SVGS.music, label: 'vale kpop', title: 'BTS Marathon', desc: 'Cupón válido para una noche de música y conciertos de BTS juntos.', rarity: 'super-raro', page: 'immersive.html', theme: 'cooky' },
+    { code: 'FNAF', icon: SVGS.check, label: 'vale de horror', title: 'Night Fright', desc: 'Noche de jugar o ver videos de FNAF, hacemos locuras y nos divertimos juntos.', rarity: 'super-raro', page: 'immersive.html', theme: 'brawl' },
+    { code: 'ANIME', icon: SVGS.smile, label: 'vale otaku', title: 'Anime Marathon', desc: 'Cupón válido para un día completo de ver anime juntos.', rarity: 'super-raro', page: 'immersive.html', theme: 'cooky' },
+    { code: 'AMO', icon: SVGS.heart, label: 'vale infinito', title: 'Amo', desc: 'Te amo. Con todas las letras, con toda mi alma.', rarity: 'legendario' },
+    { code: '08/01/2026', icon: SVGS.calendar, label: 'fecha grabada', title: '08 / 01 / 2026', desc: 'El día que me diste una oportunidad y prometí hacerte la mujer más feliz del mundo.', rarity: 'legendario' },
+    { code: 'CUMPLEANOS', icon: SVGS.smile, label: 'vale de celebración', title: 'Cumpleaños', desc: '¡FELIZ CUMPLEAÑOS MI NIÑA, TE AMO!', rarity: 'legendario' },
+    { code: 'SPOTIFY', icon: SVGS.headphones, label: 'canción para ti', title: 'Tu playlist', desc: 'Una playlist hecha por mí, con canciones que me recuerdan a ti.', rarity: 'legendario', special: 'spotify', link: 'https://open.spotify.com/playlist/1j6uTj3NeZlCSxofMol0Ky?si=2c2dab7a59d941a3' },
     { code: 'BRAWLSTARS', icon: SVGS.star, label: 'el vale más valioso', title: 'Mega Caja', desc: 'Canjéalo para pasar conmigo todos los días de mi vida.', rarity: 'ultralegendario', page: 'mega-box.html' },
-    { code: '19VIDAS', icon: SVGS.check, label: 'el más valioso', title: '19 Vidas', desc: '19 vidas extra. Porque tú mereces todas las vidas del mundo y más. Juega para ganarlas.', rarity: 'ultralegendario', page: 'gungeon_v3.html' },
-    { code: 'VIDEOJUEGO', icon: SVGS.star, label: 'vale legendario', title: 'Mini-Game Arcade', desc: 'Un minijuego arcade hecho por mí, solo para ti. Música, acción y mucho corazón.', rarity: 'legendario', page: 'gungeon_v3.html' },
-    { code: 'FOREVER', icon: SVGS.heart, label: 'vale eterno', title: 'Forever', desc: 'Para siempre. Sin fecha de caducidad. Sin excusas.', rarity: 'ultralegendario', page: 'date-legendary.html' },
-    { code: 'DREAM', icon: SVGS.check, label: 'sueño cumplido', title: 'Dream Come True', desc: 'Un deseo tuyo, convertido en realidad. Lo que quieras, cuando quieras.', rarity: 'ultralegendario', page: 'date-legendary.html' },
-    { code: 'FELICES16', icon: SVGS.star, label: 'celebración épica', title: 'Felices 16', desc: 'Una celebración épica para tus 16 años. Inolvidable.', rarity: 'ultralegendario', page: 'date-legendary.html' },
-    { code: 'SIEMPRE', icon: SVGS.smile, label: 'vale infinito', title: 'Siempre', desc: 'No importa el día ni la hora. Siempre estaré ahí, sin condiciones.', rarity: 'ultralegendario', page: 'date-legendary.html' }
+    { code: 'VIDEOJUEGO', icon: SVGS.star, label: 'vale legendario', title: 'Mini-Game Arcade', desc: 'Un videojuego hecho por mí con lo que te encanta.', rarity: 'legendario', page: 'gungeon_v3.html' },
+    { code: 'FELICES16', icon: SVGS.star, label: 'celebración épica', title: 'Felices 16', desc: 'Una celebración épica para tus 16 años.', rarity: 'ultralegendario', page: 'immersive.html' },
+    { code: 'SIEMPRE', icon: SVGS.smile, label: 'vale infinito', title: 'Siempre', desc: 'Siempre estaré ahí, sin condiciones.', rarity: 'ultralegendario', page: 'letter-epic.html' }
 ];
 
+/* ---------- NORMALIZACIÓN DE CÓDIGOS ---------- */
+function normalizeCode(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+}
+
 const REWARDS_BY_CODE = {};
-REWARD_DEFINITIONS.forEach(r => { REWARDS_BY_CODE[r.code.toUpperCase()] = r; });
+REWARD_DEFINITIONS.forEach(r => { REWARDS_BY_CODE[normalizeCode(r.code)] = r; });
 
 /* ---------- TEXTOS DE CARTAS (letter-epic.html) ----------
    Solo legendarios, ultralegendarios y CARTA tienen carta completa.
-   EKKOJINX tiene una tarjeta de personajes con frase especial. */
+   */
 const LETTERS_BY_CODE = {
     CARTA: {
         chapters: [
-            { label: 'capítulo uno', text: 'Hay cosas que se dicen mejor escritas. Esta carta es un pequeño pedazo de todo lo que a veces no digo en voz alta.' },
-            { label: 'capítulo dos', text: 'Gracias por tu energía, por tu risa, por cómo llenas cualquier habitación en la que entras. No es casualidad que todos te quieran: eres fácil de querer.' },
+            { label: 'capítulo uno', text: 'Hay cosas que se dicen mejor escritas. Esta carta es un pequeño pedazo de todo lo que a veces no digo en voz alta.\n\nAunque a veces no sea el novio perfecto, gracias a tu increíble forma de ser intento serlo. Eres todo lo que soñé y todo lo que quiero.' },
+            { label: 'capítulo dos', text: 'Gracias por tu energía, por tu risa, por tu manera de ser y tu hermosa cara de felicidad al verme.' },
             { label: 'capítulo tres', text: 'Si algún día dudas de cuánto significas para mí, vuelve a esta página. Aquí quedó escrito, sin borrar.' }
         ],
-        final: 'esto es mío y tuyo'
-    },
-    AMO: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Te amo. Con todas las letras, todas las vidas, todo. No hay forma de medir lo que siento por ti.' },
-            { label: 'capítulo dos', text: 'Cada día que pasa me confirma que eres la mejor decisión que he tomado. Y no es solo hoy, es siempre.' },
-            { label: 'capítulo tres', text: 'Este vale no tiene fecha de caducidad porque mi amor por ti tampoco lo tiene.' }
-        ],
-        final: 'te amo, hoy y siempre'
-    },
-    TEAMO: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Las dos palabras más importantes. Dichas por mí, para ti. Sin condiciones, sin dudas.' },
-            { label: 'capítulo dos', text: 'No necesito que sea perfecto, solo necesito que sea real. Y contigo, todo es real.' },
-            { label: 'capítulo tres', text: 'Este vale es un recordatorio: nunca olvides lo que significas para mí.' }
-        ],
-        final: 'te amo, siempre'
-    },
-    '08/01/2026': {
-        chapters: [
-            { label: 'capítulo uno', text: 'Un día que quiero recordar siempre contigo. No por ser perfecto, sino por ser nuestro.' },
-            { label: 'capítulo dos', text: 'Cada segundo de ese día fue especial. Pero lo que más recuerdo es tu sonrisa.' },
-            { label: 'capítulo tres', text: 'Este vale guarda la fecha que marcó el inicio de todo lo que viene.' }
-        ],
-        final: '08/01/2026, nuestro día'
-    },
-    CUMPLEANOS: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Hoy es tu día. Todo lo que quieras, donde quieras, como quieras.' },
-            { label: 'capítulo dos', text: 'No hay plan mejor que celebrar contigo. Eres la mejor parte de cualquier celebración.' },
-            { label: 'capítulo tres', text: 'Que este año te traiga todo lo que mereces y más.' }
-        ],
-        final: 'feliz cumpleaños, mi vida'
-    },
-    SPOTIFY: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Una playlist hecha por mí, con canciones que me recuerdan a ti. Cada canción tiene una historia con algo tuyo.' },
-            { label: 'capítulo dos', text: 'Ponla en repeat y déjala sonar. Es nuestra banda sonora.' },
-            { label: 'capítulo tres', text: 'Cuando escuches estas canciones, piensa en mí.' }
-        ],
-        final: 'tu playlist, nuestra música'
-    },
-    BRAWLSTARS: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Canjéalo para pasar conmigo todos los días de mi vida. No es un vale, es una promesa.' },
-            { label: 'capítulo dos', text: 'Cada día contigo es una nueva aventura. Y yo nunca me cansaré de explorarla contigo.' },
-            { label: 'capítulo tres', text: 'La mega caja se abre una sola vez: cuando tú decides estar conmigo.' }
-        ],
-        final: 'todos los días de mi vida'
-    },
-    '19VIDAS': {
-        chapters: [
-            { label: 'capítulo uno', text: '19 vidas extra. Porque tú mereces todas las vidas del mundo y más.' },
-            { label: 'capítulo dos', text: 'Juega para ganarlas. Pero la verdadera vida extra eres tú.' },
-            { label: 'capítulo tres', text: 'Cada vida es un recuerdo más contigo.' }
-        ],
-        final: 'todas las vidas, todas para ti'
-    },
-    VIDEOJUEGO: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Un minijuego arcade hecho por mí, solo para ti. Música, acción y mucho corazón.' },
-            { label: 'capítulo dos', text: 'No se trata de ganar o perder. Se trata de jugar juntos.' },
-            { label: 'capítulo tres', text: 'El mejor juego es el que compartes con la persona correcta.' }
-        ],
-        final: 'el juego más importante eres tú'
-    },
-    FOREVER: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Para siempre. Sin fecha de caducidad. Sin excusas.' },
-            { label: 'capítulo dos', text: 'No importa lo que pase, mi compromiso contigo es eterno.' },
-            { label: 'capítulo tres', text: 'Forever no es una palabra grande. Es la más pequeña y la más completa.' }
-        ],
-        final: 'para siempre, sin condiciones'
-    },
-    DREAM: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Un deseo tuyo, convertido en realidad. Lo que quieras, cuando quieras.' },
-            { label: 'capítulo dos', text: 'Tú me das la fuerza para hacer realidad cualquier cosa. Tú eres mi sueño hecho realidad.' },
-            { label: 'capítulo tres', text: 'El mejor sueño es el que tengo contigo.' }
-        ],
-        final: 'tu sueño, mi realidad'
-    },
-    FELICES16: {
-        chapters: [
-            { label: 'capítulo uno', text: 'Una celebración épica para tus 16 años. Inolvidable.' },
-            { label: 'capítulo dos', text: 'Que este día sea tan especial como tú lo eres para mí.' },
-            { label: 'capítulo tres', text: 'Los mejores 16 años de mi vida empiezan contigo.' }
-        ],
-        final: 'felices 16, mi vida'
+        final: 'Todo lo que he escrito aquí y en otras partes es la manera en la que me haces sentir: seguro y feliz.'
     },
     SIEMPRE: {
         chapters: [
-            { label: 'capítulo uno', text: 'No importa el día ni la hora. Siempre estaré ahí, sin condiciones.' },
-            { label: 'capítulo dos', text: 'El tiempo pasa, todo cambia, pero esto que siento no se mueve.' },
-            { label: 'capítulo tres', text: 'Siempre. Es la palabra más poderosa que conozco.' }
+            { label: 'capítulo uno', text: 'Siempre estaré ahí para ti, no importa que tan mal estés. Siempre quiero estar a tu lado apoyando tus ideas. Eres especial para mí, nunca quiero perderte.' },
+            { label: 'capítulo dos', text: 'Aunque cometo mil errores, sé que quiero pasar toda mi vida junto a ti, que tú seas la madre de mis hijos y tener un lindo hogar donde tú y yo, hasta ancianos, sigamos coqueteándonos. Porque siempre estaré ahí, sin condiciones.' }
         ],
-        final: 'siempre, sin excepciones'
+        final: 'siempre, sin condiciones'
     }
 };
 
@@ -257,14 +178,21 @@ function getRewardFromContext() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     if (code) {
-        const r = REWARDS_BY_CODE[code.trim().toUpperCase()];
+        const r = REWARDS_BY_CODE[normalizeCode(code.trim())];
         return r || null;
     }
     return null;
 }
 
 function goBackToChest() {
-    window.location.href = './index.html#brawl';
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.close();
+        setTimeout(function() {
+            if (!window.closed) window.location.href = './index.html#brawl';
+        }, 100);
+    }
 }
 
 function showToast(message) {
