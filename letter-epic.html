@@ -1,0 +1,535 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta · Para Ti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Reenie+Beanie&family=Space+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./shared.css">
+<script src="./shared.js"></script>
+<style>
+/* ===== LOCAL: barra de progreso de lectura + detalles de carta ===== */
+.read-progress {
+    position: sticky; top: 0; z-index: 1001; height: 6px; background: transparent;
+}
+.read-progress-fill {
+    position: relative; height: 100%; width: 0%;
+    background: linear-gradient(100deg, var(--accent) 0%, var(--accent-2) 25%, #fff 50%, var(--accent-2) 75%, var(--accent) 100%);
+    background-size: 250% 100%;
+    box-shadow: 0 0 16px rgba(255,255,255,0.6), 0 0 32px rgba(var(--grain-color),0.3), 0 2px 8px rgba(0,0,0,0.15);
+    transition: width 0.1s linear;
+    animation: progressShine 2.5s linear infinite;
+    animation-play-state: var(--anim-play, running);
+}
+.read-progress-fill::after {
+    content: ''; position: absolute; right: -7px; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--card); border: 3px solid var(--accent);
+    box-shadow: 0 0 0 2px var(--ink), 0 0 12px rgba(var(--grain-color),0.4), 0 0 20px rgba(255,255,255,0.2);
+}
+@keyframes progressShine { 0% { background-position: 250% 0; } 100% { background-position: -250% 0; } }
+body.theme-cooky .read-progress-fill { box-shadow: 0 0 18px rgba(236,21,96,0.6), 0 0 36px rgba(236,21,96,0.2); }
+
+.letter-window { max-width: 620px; margin: 40px auto; }
+.letter-kicker {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em;
+    text-transform: uppercase; opacity: 0.7; margin-bottom: 10px;
+    display: inline-block; padding: 5px 14px; border: 1px solid currentColor;
+    background: rgba(var(--grain-color), 0.04);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    backdrop-filter: blur(2px);
+}
+.letter-kicker::before { content: '◆ '; color: var(--accent-2); }
+.letter-heading {
+    font-family: var(--font-serif); font-style: italic; font-weight: 700;
+    font-size: 2.5rem; letter-spacing: -0.015em; margin-bottom: 8px; color: var(--ink);
+    position: relative; display: inline-block;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(var(--grain-color),0.06);
+    line-height: 1.15;
+}
+.letter-heading::after {
+    content: ''; position: absolute; left: 0; right: -12px; bottom: -8px; height: 4px;
+    background:
+        linear-gradient(90deg, transparent 0 6px, var(--accent) 6px 14px, transparent 14px 20px, var(--accent-2) 20px 30px, transparent 30px 36px, var(--accent) 36px 46px, transparent 46px);
+    background-size: 46px 4px; opacity: 0.8;
+    filter: drop-shadow(0 1px 3px rgba(var(--grain-color),0.2));
+}
+.letter-frame { margin: 10px 0 30px; }
+
+.story-note {
+    font-family: var(--font-hand); font-size: 1.9rem; line-height: 1.45;
+    max-width: 90%; overflow-wrap: break-word; transform: rotate(-1.5deg);
+    color: var(--accent); margin: 18px 0 30px; position: relative; padding-left: 26px;
+    background: rgba(var(--grain-color), 0.03);
+    border-left: 3px solid var(--accent-2);
+    padding: 12px 16px 12px 28px;
+    border-radius: 0 6px 6px 0;
+    box-shadow: 2px 3px 12px rgba(0,0,0,0.06), inset 0 0 20px rgba(var(--grain-color),0.02);
+}
+.story-note::before {
+    content: '\201c'; position: absolute; left: -8px; top: -22px; font-family: var(--font-serif);
+    font-size: 5rem; line-height: 1; color: var(--accent-2); opacity: 0.5;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+}
+
+.story-ornament {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.24em;
+    text-align: center; color: var(--accent); opacity: 0.6; padding: 6px 0 26px;
+    animation: ornamentFloat 4s ease-in-out infinite;
+    animation-play-state: var(--anim-play, running);
+}
+@keyframes ornamentFloat {
+    0%, 100% { opacity: 0.4; transform: translateY(0) scale(1); }
+    50% { opacity: 0.9; transform: translateY(-3px) scale(1.02); }
+}
+
+.rubber-stamp {
+    width: 86px; height: 86px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-family: var(--font-mono); font-size: 0.56rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); line-height: 1.35;
+    border: 2px solid var(--accent); transform: rotate(-8deg); opacity: 0.88;
+    box-shadow:
+        inset 0 0 0 3px var(--card), inset 0 0 0 5px var(--accent),
+        0 0 15px rgba(var(--grain-color),0.15), 0 4px 12px rgba(0,0,0,0.08);
+    flex-shrink: 0; position: relative;
+    animation: stampSway 4s ease-in-out infinite;
+    animation-play-state: var(--anim-play, running);
+    background: radial-gradient(circle at 40% 35%, rgba(var(--grain-color),0.03), transparent 70%);
+}
+/* grano de tinta húmeda en el sello — más textura */
+.rubber-stamp::before {
+    content: ''; position: absolute; inset: 6px; border-radius: 50%; pointer-events: none;
+    background:
+        radial-gradient(circle at 30% 40%, rgba(var(--grain-color),0.22) 1px, transparent 1.8px),
+        radial-gradient(circle at 70% 70%, rgba(var(--grain-color),0.18) 1px, transparent 1.8px),
+        radial-gradient(circle at 55% 25%, rgba(var(--grain-color),0.14) 1px, transparent 1.8px),
+        radial-gradient(circle at 20% 75%, rgba(var(--grain-color),0.1) 0.8px, transparent 1.5px),
+        radial-gradient(circle at 80% 30%, rgba(var(--grain-color),0.12) 0.8px, transparent 1.5px);
+    background-size: 11px 11px, 14px 14px, 9px 9px, 16px 16px, 12px 12px;
+    opacity: 0.9;
+}
+.rubber-stamp::after {
+    content: ''; position: absolute; inset: -4px; border: 1px dashed currentColor;
+    border-radius: 50%; opacity: 0.35;
+}
+@keyframes stampSway { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(-4deg); } }
+
+/* ===== partículas flotantes de fondo ===== */
+.bg-particles {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.bg-particle {
+    position: absolute; border-radius: 50%; opacity: 0;
+    background: radial-gradient(circle, var(--accent-2), transparent 70%);
+    animation: particleDrift linear infinite;
+    animation-play-state: var(--anim-play, running);
+}
+@keyframes particleDrift {
+    0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* ===== letter-signature mejorada ===== */
+.letter-signature {
+    margin-top: 14px; padding-top: 24px;
+    border-top: 2px dashed var(--ink);
+    position: relative;
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.letter-signature.in-view { opacity: 1; transform: translateY(0); }
+.letter-signature::before {
+    content: ''; position: absolute; top: -1px; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-2), transparent);
+    opacity: 0.5;
+}
+.letter-signature-text {
+    font-family: var(--font-hand); font-size: 2.4rem; color: var(--accent);
+    transform: rotate(-1.5deg); display: inline-block; position: relative;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    animation: signatureWrite 1.2s ease-out both;
+    animation-play-state: var(--anim-play, running);
+}
+@keyframes signatureWrite {
+    0% { clip-path: inset(0 100% 0 0); opacity: 0; }
+    60% { clip-path: inset(0 0% 0 0); opacity: 1; }
+    100% { clip-path: inset(0 0% 0 0); opacity: 1; }
+}
+.letter-signature-sub {
+    font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.65; margin-top: 4px;
+    letter-spacing: 0.04em;
+}
+
+.letter-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 34px; }
+.letter-actions .btn-volver { position: static; }
+
+@media (max-width: 400px) { .story-note { transform: rotate(-0.75deg); } }
+
+/* ===== LUCYDAVID — diseño único ===== */
+.lucy-container{ position: relative; max-width: 560px; margin: 50px auto 30px; }
+.lucy-bg-hearts{ position: absolute; inset: -30px; pointer-events: none; z-index: 0; overflow: hidden; }
+.lucy-card{ position: relative; z-index: 1; background: linear-gradient(160deg, #fff9f0 0%, #fef5ec 50%, #fdf0e4 100%); border: 2px solid #e8c4a8; border-radius: 8px; overflow: hidden; box-shadow: 8px 8px 0 #e8c4a8, 0 0 40px rgba(232,196,168,0.2); }
+.lucy-header{ background: linear-gradient(90deg, rgba(176,35,59,0.08), rgba(240,180,41,0.08)); border-bottom: 1px solid rgba(232,196,168,0.5); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+.lucy-badge{ font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: #b0233b; border: 1px solid rgba(176,35,59,0.3); padding: 4px 10px; border-radius: 2px; background: rgba(255,255,255,0.6); }
+.lucy-dots{ display: flex; gap: 6px; }
+.lucy-dots .dot{ width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(232,196,168,0.5); }
+.lucy-dots .dot:nth-child(1){ background: #fda4af; }
+.lucy-dots .dot:nth-child(2){ background: #f0b429; }
+.lucy-dots .dot:nth-child(3){ background: #b0233b; }
+.lucy-body{ padding: 28px 24px 24px; }
+.lucy-kicker{ font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #b0233b; margin-bottom: 8px; font-weight: 700; }
+.lucy-title{ font-family: 'Fraunces', serif; font-style: italic; font-weight: 700; font-size: 2.6rem; color: #b0233b; margin: 0 0 10px; line-height: 1.1; }
+.lucy-divider{ font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.24em; text-align: center; color: #e8c4a8; margin-bottom: 20px; }
+.lucy-photo-frame{ text-align: center; margin: 0 auto 22px; }
+.lucy-photo-inner{ width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; background: linear-gradient(135deg, #fda4af, #b0233b); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(176,35,59,0.3), inset 0 2px 10px rgba(255,255,255,0.3); }
+.lucy-initial{ font-family: 'Fraunces', serif; font-style: italic; font-weight: 700; font-size: 3.5rem; color: #fff; }
+.lucy-photo-caption{ font-family: 'Reenie Beanie', cursive; font-size: 1.1rem; color: #b0233b; margin-top: 10px; }
+.lucy-message{ margin-bottom: 22px; }
+.lucy-text{ font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; line-height: 1.75; color: #4a3528; margin-bottom: 14px; font-weight: 500; }
+.lucy-signature{ display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px dashed rgba(232,196,168,0.6); }
+.lucy-sig-text{ font-family: 'Reenie Beanie', cursive; font-size: 1.6rem; color: #b0233b; transform: rotate(-1.5deg); }
+.lucy-sig-stamp{ font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(176,35,59,0.6); border: 1px solid rgba(176,35,59,0.3); padding: 4px 8px; border-radius: 2px; transform: rotate(3deg); }
+</style>
+</head>
+<body class="theme-cooky">
+    <div class="bg-layer" aria-hidden="true"></div>
+    
+    <!-- Artwork decorative elements per theme -->
+    <div class="theme-artwork cooky-art-1" aria-hidden="true"></div>
+    <div class="theme-artwork cooky-art-2" aria-hidden="true"></div>
+    <div class="theme-artwork cooky-art-3" aria-hidden="true"></div>
+    <div class="theme-artwork joji-art-1" aria-hidden="true"></div>
+    <div class="theme-artwork joji-art-2" aria-hidden="true"></div>
+    <div class="theme-artwork brawl-art-1" aria-hidden="true"></div>
+    <div class="theme-artwork brawl-art-2" aria-hidden="true"></div>
+    <div class="theme-artwork brawl-art-3" aria-hidden="true"></div>
+    
+    <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
+    <div class="read-progress" id="readProgress" aria-hidden="true"><div class="read-progress-fill" id="readProgressFill"></div></div>
+    <a class="btn-volver" href="./index.html#brawl">← volver al cofre</a>
+    <main class="container" id="app"></main>
+<script>
+(function initLetterEpic(){
+    const app = document.getElementById('app');
+    const reward = getRewardFromContext();
+    const reduced = prefersReducedMotion();
+
+    const theme = (reward && reward.theme) ? reward.theme : 'cooky';
+    document.body.className = 'theme-' + theme;
+
+    function renderError(){
+        app.innerHTML = `
+            <div class="window-card error-window letter-window">
+                <div class="window-header"><span>carta_para_ana.exe</span><span class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></span></div>
+                <div class="window-body">
+                    <span class="error-icon" aria-hidden="true">💌</span>
+                    <h2>ESTA CARTA ESPERA TU CÓDIGO</h2>
+                    <p>Abre el cofre y canjea un código para desbloquear esta carta.</p>
+                    <a class="btn-volver" style="position:static; margin:0 auto;" href="./index.html#brawl">← volver al cofre</a>
+                </div>
+            </div>`;
+    }
+
+    function renderLetter(r){
+        const data = LETTERS_BY_CODE[r.code];
+        const rarityName = (RARITY_META[r.rarity] || {}).name || r.rarity;
+        const chapters = data ? data.chapters : [];
+        const finalNote = data ? data.final : r.desc;
+
+        /* ===== LUCYDAVID — diseño único ===== */
+        if (r.code === 'LUCYDAVID') {
+            app.innerHTML = `
+                <div class="lucy-container">
+                    <div class="lucy-bg-hearts" id="lucyHearts"></div>
+                    <div class="lucy-card">
+                        <div class="lucy-header">
+                            <span class="lucy-badge">ÉPICO</span>
+                            <div class="lucy-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                        </div>
+                        <div class="lucy-body">
+                            <p class="lucy-kicker">vale personal</p>
+                            <h1 class="lucy-title">Lucy David</h1>
+                            <div class="lucy-divider">✦ — · — ✦</div>
+                            <div class="lucy-photo-frame">
+                                <div class="lucy-photo-inner">
+                                    <div class="lucy-initial">L</div>
+                                </div>
+                                <p class="lucy-photo-caption">un momento solo tuyo y mío</p>
+                            </div>
+                            <div class="lucy-message">
+                                <p class="lucy-text">Hay historias que empiezan como cualquier otra y terminan siendo la única que importa. La nuestra es así.</p>
+                                <p class="lucy-text">Tú y yo tenemos esa dinámica de las parejas que se conocen de verdad: reírnos de lo mismo, entendernos sin hablar y defender el uno al otro sin dudar.</p>
+                                <p class="lucy-text">Este vale es un recordatorio: pase lo que pase, siempre hay un momento que es solo tuyo y mío.</p>
+                            </div>
+                            <div class="lucy-signature">
+                                <span class="lucy-sig-text">siempre nosotros dos</span>
+                                <span class="lucy-sig-stamp">para Ana ✦</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            initLucyEffects();
+            return;
+        }
+
+        if (!data) { renderError(); return; }
+
+        let html = `
+            <div class="window-card letter-window">
+                <div class="window-header">
+                    <span>carta_para_ana.exe</span>
+                    <span class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></span>
+                </div>
+                <div class="window-body">
+                    <span class="rarity-tag rarity-${r.rarity}" aria-label="Rareza: ${rarityName}">${rarityName}</span>
+                    <p class="letter-kicker">${r.label} · ${r.title}</p>
+                    <h1 class="letter-heading">${r.title}</h1>
+                    <div class="story-container" id="storyContainer">`;
+
+        chapters.forEach((ch, i) => {
+            if (i > 0) html += '<div class="story-ornament" aria-hidden="true">✦ — · — ✦</div>';
+            html += `
+                <div class="story-text-block">
+                    <span class="story-chapter-label">${ch.label}</span>
+                    <p>${ch.text}</p>
+                </div>`;
+
+            /* un marco de foto entre el capítulo uno y el resto, con el sistema story-frame */
+            if (i === 0 && chapters.length > 1) {
+                html += `
+                    <!-- MARCO DE FOTO: reemplaza .story-frame-placeholder por tu foto, así:
+                         <img class="story-frame-media" src="tu-foto.jpg" alt="nosotros">
+                         data-reveal define la animación de apertura -->
+                    <div class="story-frame letter-frame" data-reveal="curtain">
+                        <div class="story-frame-placeholder" aria-hidden="true">${r.icon}</div>
+                        <div class="story-frame-caption">${chapters[1] ? 'esto también es parte de la historia' : 'nuestro momento'}</div>
+                    </div>`;
+            }
+        });
+
+        html += `
+                    <p class="story-note">${finalNote}</p>
+                    <div class="letter-signature" id="signature">
+                        <span>
+                            <span class="letter-signature-text">con todo mi amor, Isaac</span>
+                            <span class="letter-signature-sub">${r.code} · canjeado para siempre</span>
+                        </span>
+                        <span style="display:flex; align-items:center; gap:16px;">
+                            <span class="rubber-stamp" aria-hidden="true">para Ana ✦</span>
+                            <span class="mini-vinyl" aria-hidden="true"></span>
+                        </span>
+                    </div>
+                    <div class="letter-actions">
+                        <a class="btn-volver" href="./index.html#brawl">← volver al cofre</a>
+                    </div>
+                </div>
+            </div>`;
+
+        app.innerHTML = html;
+
+        /* reveal por scroll */
+        const revealTargets = app.querySelectorAll('#storyContainer .story-text-block, #storyContainer .story-frame, .letter-signature');
+        const sig = document.getElementById('signature');
+        if (reduced) {
+            revealTargets.forEach(el => el.classList.add('in-view'));
+            return;
+        }
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('in-view');
+            });
+        }, { threshold: 0.25 });
+        revealTargets.forEach(el => io.observe(el));
+
+        /* confeti suave al llegar a la firma */
+        const sigObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 80, origin: { y: 0.85 }, colors: ['#ec1560', '#f0b429', '#ffffff'] });
+                    sigObs.disconnect();
+                }
+            });
+        }, { threshold: 0.5 });
+        sigObs.observe(sig);
+
+        /* barra de progreso de lectura */
+        const fill = document.getElementById('readProgressFill');
+        const onScroll = () => {
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+            fill.style.width = Math.min(100, pct) + '%';
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    function initLucyEffects(){
+        const hearts = document.getElementById('lucyHearts');
+        if (!hearts) return;
+        const symbols = ['♥', '♡', '❤', '✦', '·'];
+        const colors = ['#fda4af', '#b0233b', '#f0b429', '#e8c4a8'];
+        for (let i = 0; i < 15; i++) {
+            const h = document.createElement('div');
+            h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            h.style.cssText = `position:absolute;left:${Math.random()*100}%;top:${Math.random()*100}%;font-size:${10+Math.random()*16}px;color:${colors[Math.floor(Math.random()*colors.length)]};opacity:${0.15+Math.random()*0.25};animation:lucyFloat ${4+Math.random()*4}s ease-in-out ${Math.random()*3}s infinite;`;
+            hearts.appendChild(h);
+        }
+        if (!document.getElementById('lucy-keyframes')) {
+            const s = document.createElement('style');
+            s.id = 'lucy-keyframes';
+            s.textContent = '@keyframes lucyFloat{ 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-15px) rotate(8deg)} }';
+            document.head.appendChild(s);
+        }
+    }
+
+    if (!reward || !LETTERS_BY_CODE[reward.code]) {
+        renderError();
+    } else {
+        renderLetter(reward);
+    }
+
+    /* partículas flotantes de fondo */
+    if (!reduced) {
+        const particlesContainer = document.getElementById('bgParticles');
+        if (particlesContainer) {
+            const count = 18;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'bg-particle';
+                const size = 3 + Math.random() * 6;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = (12 + Math.random() * 18) + 's';
+                p.style.animationDelay = (Math.random() * 15) + 's';
+                p.style.opacity = 0;
+                particlesContainer.appendChild(p);
+            }
+        }
+    }
+})();
+
+/* ==========================================================================
+   COOKY THEME ENHANCED EFFECTS (letter-epic.html)
+   ========================================================================== */
+
+// Add floating hearts and vinyl particles
+function addCookyFloatingElements() {
+    if (!document.body.classList.contains('theme-cooky')) return;
+    
+    // Floating hearts
+    for (let i = 0; i < 5; i++) {
+        const heart = document.createElement('div');
+        heart.style.cssText = `
+            position: fixed;
+            width: ${12 + Math.random() * 18}px;
+            height: ${12 + Math.random() * 18}px;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            background: ${['#ec1560', '#f0b429', '#ff9ec2'][Math.floor(Math.random() * 3)]};
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 1;
+            animation: cookyHeartFloat ${12 + Math.random() * 10}s ease-in-out infinite;
+            animation-delay: ${Math.random() * 8}s;
+        `;
+        document.body.appendChild(heart);
+    }
+    
+    // Floating mini vinyls
+    for (let i = 0; i < 3; i++) {
+        const vinyl = document.createElement('div');
+        vinyl.style.cssText = `
+            position: fixed;
+            width: ${8 + Math.random() * 12}px;
+            height: ${8 + Math.random() * 12}px;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            border-radius: 50%;
+            border: 2px solid #ec1560;
+            background: repeating-radial-gradient(circle, #1a0a10 0px, #1a0a10 1px, transparent 2px, transparent 5px);
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: cookyVinylFloat ${15 + Math.random() * 10}s ease-in-out infinite;
+            animation-delay: ${Math.random() * 8}s;
+        `;
+        document.body.appendChild(vinyl);
+    }
+}
+
+// Click/tap heart burst effect
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('button, a, .btn-volver')) {
+        createCookyHeartBurst(e.clientX, e.clientY);
+    }
+});
+
+document.addEventListener('touchstart', (e) => {
+    if (!e.target.closest('button, a, .btn-volver')) {
+        const touch = e.touches[0];
+        createCookyHeartBurst(touch.clientX, touch.clientY);
+    }
+}, { passive: true });
+
+function createCookyHeartBurst(x, y) {
+    const colors = ['#ec1560', '#f0b429', '#ff9ec2', '#fffaf9'];
+    for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+            position: fixed;
+            left: ${x}px;
+            top: ${y}px;
+            width: ${5 + Math.random() * 8}px;
+            height: ${5 + Math.random() * 8}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            pointer-events: none;
+            z-index: 1000;
+            animation: cookyHeartBurst ${0.5 + Math.random() * 0.5}s ease-out forwards;
+            --tx: ${(Math.random() - 0.5) * 250}px;
+            --ty: ${(Math.random() - 0.5) * 250}px;
+        `;
+        document.body.appendChild(particle);
+        particle.addEventListener('animationend', () => particle.remove(), { once: true });
+        setTimeout(() => particle.remove(), 1100);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addCookyFloatingElements);
+} else {
+    addCookyFloatingElements();
+}
+
+// Add animation styles
+const cookyStyles = document.createElement('style');
+cookyStyles.textContent = `
+    @keyframes cookyHeartFloat {
+        0%, 100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.15; }
+        25% { transform: translateY(-30px) rotate(-15deg) scale(1.2); opacity: 0.3; }
+        50% { transform: translateY(10px) rotate(10deg) scale(0.9); opacity: 0.2; }
+        75% { transform: translateY(-20px) rotate(-5deg) scale(1.1); opacity: 0.4; }
+    }
+    @keyframes cookyVinylFloat {
+        0%, 100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.1; }
+        50% { transform: translateY(-25px) rotate(180deg) scale(1.1); opacity: 0.2; }
+    }
+    @keyframes cookyHeartBurst {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+`;
+document.head.appendChild(cookyStyles);
+</script>
+<script src="./pencil-trail.js"></script>
+</body>
+</html>
