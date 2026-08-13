@@ -1,0 +1,715 @@
+/* ==========================================================================
+   shared.css — design system neo-brutalista "Para Ti"
+   Variables de tema, ventanas retro, insignias de rareza, sistema story-frame
+   y componentes reutilizables entre páginas.
+   ========================================================================== */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-serif: 'Fraunces', serif;
+    --font-hand: 'Reenie Beanie', cursive;
+    --font-mono: 'Space Mono', monospace;
+    --border-w: 3px;
+    --radius-soft: 2px;
+}
+
+/* TEMA 1 — COOKY (BTS): rosa pastel + vinilo + papel */
+body.theme-cooky {
+    --bg: #f9c6d8; --bg-2: #ffe1eb; --card: #fffaf9; --ink: #1a0a10;
+    --accent: #ec1560; --accent-2: #f0b429; --accent-soft: #ffe4ec;
+    --shadow-color: #1a0a10; --pattern-opacity: 0.3;
+    --grain-color: 26,10,16;
+}
+
+/* TEMA 2 — JOJI: lluvia, lo-fi, editorial oscuro */
+body.theme-joji {
+    --bg: #08090c; --bg-2: #121319; --card: #16181f; --ink: #eeece7;
+    --accent: #d43a53; --accent-2: #8a97b8; --accent-soft: #1c1f28;
+    --shadow-color: #000000; --pattern-opacity: 0.45;
+    --grain-color: 220,225,235;
+}
+
+/* TEMA 3 — BRAWL STARS: cómic, impacto, saturado */
+body.theme-brawl {
+    --bg: #1f2a73; --bg-2: #2b3aa0; --card: #ffd24a; --ink: #0e1640;
+    --accent: #ff3d6e; --accent-2: #36c5ff; --accent-soft: #9fe6ff;
+    --shadow-color: #0a1030; --pattern-opacity: 0.5;
+    --grain-color: 14,20,60;
+}
+
+body {
+    font-family: var(--font-display);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    padding-bottom: 40px;
+    transition: background 0.6s ease, color 0.6s ease;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    letter-spacing: 0.01em;
+}
+
+/* ===== SCROLLBAR A MEDIDA ===== */
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track {
+    background: var(--bg-2);
+    border-left: 2px solid var(--ink);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border: 2px solid var(--ink);
+    box-shadow: inset 0 0 0 2px var(--card);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
+* { scrollbar-width: thin; scrollbar-color: var(--accent) var(--bg-2); }
+
+/* ===== ACCESIBILIDAD ===== */
+::selection { background: var(--accent); color: var(--card); }
+button:focus-visible, input:focus-visible, a:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px;
+}
+.screen-reader-text {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* grano sutil sobre todo el body */
+body::after {
+    content: ''; position: fixed; inset: 0; z-index: 2; pointer-events: none;
+    opacity: 0.035; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== FONDOS AMBIENTALES POR TEMA =====
+   - .bg-layer::before  = capa de imagen / ambiente (foto real de Cooky y Joji)
+   - .bg-layer::after   = patrón / efecto encima (lunares, lluvia, halftone)
+   Así la imagen no se ve aplastada por la opacidad del patrón. */
+.bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.bg-layer::before { content:''; position: absolute; inset: 0; transition: opacity 0.6s ease; }
+.bg-layer::after { content:''; position: absolute; inset: 0; opacity: var(--pattern-opacity); transition: opacity 0.6s ease; }
+
+/* COOKY: foto suave de fondo + lunares encima */
+.theme-cooky .bg-layer::before {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(255,255,255,0.35), transparent 60%),
+    url('./img/coocky.png');
+  background-size: 100% 100%, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  opacity: 0.38;
+}
+.theme-cooky .bg-layer::after {
+  background-image: radial-gradient(circle, var(--accent) 1.5px, transparent 2px);
+  background-size: 30px 30px;
+}
+
+/* JOJI: foto oscura en pantalla + lluvia animada encima */
+.theme-joji .bg-layer::before {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212,58,83,0.22), transparent 65%),
+    url('./img/joji.png');
+  background-size: 100% 100%, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+.theme-joji .bg-layer::after {
+  background: repeating-linear-gradient(100deg, transparent 0px, transparent 38px, rgba(210,220,240,0.14) 39px, transparent 41px);
+  animation: rainfall 6s linear infinite;
+  animation-play-state: var(--anim-play, running);
+}
+@keyframes rainfall { 0% { background-position-y: 0; } 100% { background-position-y: 400px; } }
+
+/* BRAWL STARS: sin imágenes — cómic 100% CSS (halftone + brillos + destello) */
+.theme-brawl .bg-layer::before {
+  background:
+    radial-gradient(circle at 15% 15%, rgba(255,214,10,0.2), transparent 30%),
+    radial-gradient(circle at 85% 25%, rgba(23,212,255,0.16), transparent 30%),
+    radial-gradient(circle at 45% 75%, rgba(255,45,85,0.18), transparent 32%);
+  animation: brawlStarsTwinkle 3s ease-in-out infinite;
+  animation-play-state: var(--anim-play, running);
+}
+.theme-brawl .bg-layer::after {
+  background-image:
+    radial-gradient(var(--accent-2) 3px, transparent 3.5px),
+    radial-gradient(var(--card) 2px, transparent 2.5px);
+  background-size: 60px 60px, 40px 40px;
+  background-position: 0 0, 20px 20px;
+}
+@keyframes brawlStarsTwinkle {
+  0%, 100% { opacity: 0.35; }
+  25% { opacity: 0.7; }
+  50% { opacity: 0.45; }
+  75% { opacity: 0.8; }
+}
+
+/* Artwork decorativo por tema — Cooky y Joji usan imágenes reales bien visibles */
+.theme-artwork {
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.9;
+  transition: opacity 0.6s ease;
+  will-change: transform;
+}
+.theme-cooky .theme-artwork { opacity: 0.9; }
+.theme-joji .theme-artwork { opacity: 0.62; }
+
+.theme-cooky .cooky-art-1 { 
+  top: 5%; right: 5%; width: 180px; height: 180px; 
+  background: url('./img/cookytata.png') center/contain no-repeat;
+  filter: drop-shadow(0 0 20px var(--accent));
+  animation: floatGentle 8s ease-in-out infinite;
+}
+.theme-cooky .cooky-art-2 { 
+  bottom: 15%; left: 3%; width: 120px; height: 120px; 
+  background: url('./img/cookyminiheart.png') center/contain no-repeat;
+  filter: drop-shadow(0 0 15px var(--accent-2));
+  animation: floatGentle 10s ease-in-out infinite reverse;
+}
+.theme-cooky .cooky-art-3 { 
+  top: 40%; right: 2%; width: 100px; height: 100px; 
+  background: url('./img/coocky3enamorau.png') center/contain no-repeat;
+  animation: spinSlow 20s linear infinite;
+}
+.theme-joji .joji-art-1 { 
+  top: 8%; left: 5%; width: 220px; height: 220px; 
+  background: url('./img/joji3.png') center/contain no-repeat;
+  filter: drop-shadow(0 0 30px var(--accent));
+  animation: floatGentle 12s ease-in-out infinite;
+}
+.theme-joji .joji-art-2 { 
+  bottom: 10%; right: 5%; width: 180px; height: 180px; 
+  background: url('./img/joji2.png') center/contain no-repeat;
+  filter: drop-shadow(0 0 25px var(--accent-2)) sepia(0.2);
+  animation: floatGentle 15s ease-in-out infinite reverse;
+}
+
+/* BRAWL STARS: artwork real con imágenes de brawl */
+.theme-brawl .brawl-art-1,
+.theme-brawl .brawl-art-2,
+.theme-brawl .brawl-art-3 {
+  opacity: 0.92;
+  will-change: transform;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.35));
+}
+.theme-brawl .brawl-art-1 {
+  top: 6%; right: 4%; width: 150px; height: 170px;
+  background-image: url('./img/brawlspike.png');
+  animation: floatGentle 8s ease-in-out infinite;
+}
+.theme-brawl .brawl-art-2 {
+  bottom: 10%; left: 4%; width: 130px; height: 160px;
+  background-image: url('./img/maisibrawl.png');
+  animation: bounceFloat 4.5s ease-in-out infinite;
+}
+.theme-brawl .brawl-art-3 {
+  top: 45%; right: 1%; width: 140px; height: 150px; opacity: 0.8;
+  background-image: url('./img/maxbrawl.png');
+  animation: floatGentle 11s ease-in-out infinite reverse;
+}
+
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(2deg); }
+  50% { transform: translateY(5px) rotate(-1deg); }
+  75% { transform: translateY(-8px) rotate(1deg); }
+}
+@keyframes bounceFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes brawlStarSpin {
+  from { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.12); }
+  to { transform: rotate(360deg) scale(1); }
+}
+
+/* ===== VENTANA RETRO ===== */
+.container { max-width: 800px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+.window-card {
+    background: var(--card); border: var(--border-w) solid var(--ink);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 7px 7px 0px var(--shadow-color), 12px 12px 0px rgba(var(--grain-color),0.08);
+    margin-bottom: 30px; overflow: hidden; position: relative;
+    transition: background 0.6s ease, border-color 0.6s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+    background-image:
+        linear-gradient(160deg, rgba(255,255,255,0.05) 0%, transparent 45%),
+        radial-gradient(rgba(var(--grain-color),0.03) 1px, transparent 1.6px),
+        var(--card);
+    background-size: 100% 100%, 24px 24px, 100% 100%;
+}
+
+/* Theme-specific window card enhancements */
+.theme-cooky .window-card {
+    background-image:
+        linear-gradient(160deg, rgba(255,255,255,0.08) 0%, transparent 45%),
+        radial-gradient(rgba(var(--grain-color),0.03) 1px, transparent 1.6px),
+        url('./img/coocky.png'),
+        var(--card);
+    background-size: 100% 100%, 24px 24px, 100px, 100% 100%;
+    background-position: 0 0, 0 0, right 20px bottom 20px, 0 0;
+    background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+    background-blend-mode: normal, normal, overlay, normal;
+}
+
+.theme-joji .window-card {
+    background-image:
+        linear-gradient(160deg, rgba(220,225,235,0.04) 0%, transparent 45%),
+        radial-gradient(rgba(var(--grain-color),0.03) 1px, transparent 1.6px),
+        url('./img/joji.png'),
+        var(--card);
+    background-size: 100% 100%, 24px 24px, 120px, 100% 100%;
+    background-position: 0 0, 0 0, right 15px bottom 15px, 0 0;
+    background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+    background-blend-mode: normal, normal, overlay, normal;
+}
+
+.theme-brawl .window-card {
+    background-image:
+        linear-gradient(160deg, rgba(255,214,10,0.06) 0%, transparent 45%),
+        radial-gradient(rgba(var(--grain-color),0.03) 1px, transparent 1.6px),
+        radial-gradient(var(--accent-2) 2px, transparent 2.5px);
+    background-size: 100% 100%, 24px 24px, 26px 26px;
+    background-position: 0 0, 0 0, right 20px bottom 20px;
+    background-repeat: no-repeat, repeat, repeat;
+    background-blend-mode: normal, normal, normal;
+}
+
+/* esquinas "horneadas" tipo marcador en las esquinas del interior */
+.window-card::before,
+.window-card::after {
+    content: ''; position: absolute; width: 26px; height: 26px; z-index: 5; pointer-events: none;
+    background:
+        linear-gradient(var(--accent), var(--accent)) top left / 5px 3px,
+        linear-gradient(var(--accent), var(--accent)) top left / 3px 5px;
+    background-repeat: no-repeat; opacity: 0.9;
+}
+.window-card::before { top: 46px; left: 12px; }
+.window-card::after {
+    top: 46px; right: 12px;
+    background:
+        linear-gradient(var(--accent), var(--accent)) top right / 5px 3px,
+        linear-gradient(var(--accent), var(--accent)) top right / 3px 5px;
+    background-repeat: no-repeat;
+}
+@media (hover: hover) {
+    .window-card:hover {
+        transform: translateY(-4px) rotate(-0.15deg);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 10px 10px 0px var(--shadow-color), 15px 15px 0px rgba(var(--grain-color),0.1);
+    }
+}
+.window-header {
+    background: var(--accent); border-bottom: var(--border-w) solid var(--ink);
+    padding: 13px 18px; display: flex; justify-content: space-between; align-items: center;
+    font-weight: 700; font-size: 0.82rem; color: var(--card); font-family: var(--font-mono); letter-spacing: 0.03em;
+    background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 6px, transparent 6px 12px),
+        linear-gradient(to bottom, rgba(255,255,255,0.16), transparent 60%);
+    position: relative;
+}
+.window-header::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-2), transparent);
+    opacity: 0.5; pointer-events: none;
+}
+.window-dots { display: flex; gap: 6px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); transition: transform 0.2s ease; }
+.window-card:hover .dot { transform: scale(1.15); }
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+.window-body { padding: 38px 34px; position: relative; }
+/* línea de acento en la parte superior del cuerpo de la ventana */
+.window-body::before {
+    content: ''; position: absolute; top: 0; left: 34px; right: 34px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-2), transparent);
+    opacity: 0.55; pointer-events: none;
+}
+.window-header > span:first-child::before { content: '▮ '; opacity: 0.6; }
+
+/* ===== BOTÓN VOLVER ===== */
+.btn-volver {
+    position: fixed; top: 15px; left: 15px; z-index: 1000;
+    background: var(--accent-2); color: var(--ink);
+    border: var(--border-w) solid var(--ink);
+    padding: 9px 17px; font-weight: 900; font-size: 0.9rem;
+    text-transform: uppercase; text-decoration: none; cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink);
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-display);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    border-radius: var(--radius-soft);
+    letter-spacing: 0.03em;
+}
+.btn-volver:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); background: #fff; }
+.btn-volver:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn-volver:active::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    border: var(--border-w) solid var(--ink);
+    animation: btnEcho 0.5s ease-out forwards; pointer-events: none;
+}
+@keyframes btnEcho {
+    0% { opacity: 0.6; transform: translate(0, 0); }
+    100% { opacity: 0; transform: translate(7px, 7px); }
+}
+.btn-volver:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ===== INSIGNIAS DE RAREZA (reutilizables) ===== */
+.rarity-tag {
+    display: inline-block; font-family: var(--font-mono); font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase; padding: 5px 10px;
+    border: 2px solid var(--ink); font-weight: 700; background: var(--card); color: var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+    position: relative; overflow: hidden;
+}
+.rarity-tag::after {
+    content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: skewX(-20deg); animation: rarityShine 3.2s ease-in-out infinite;
+    animation-play-state: var(--anim-play, running); pointer-events: none;
+}
+@keyframes rarityShine { 0%, 55% { left: -40%; } 85%, 100% { left: 120%; } }
+.rarity-tag.rarity-epico { background: #e11d48; color: #fff; border-color: #881337; }
+.rarity-tag.rarity-especial { background: #0284c7; color: #fff; border-color: #0c4a6e; }
+.rarity-tag.rarity-super-raro { background: #ec1789; color: #fff; border-color: #7a0a52; }
+.rarity-tag.rarity-mitico { background: #ea580c; color: #fff; border-color: #7a3800; }
+.rarity-tag.rarity-legendario { background: #10021f; color: #ffd60a !important; border-color: #ffd60a; }
+.rarity-tag.rarity-ultralegendario { background: #ffd60a; color: #10021f; border-color: #ffd60a; }
+@media (hover: hover) {
+    .rarity-tag:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+}
+
+/* ===== SISTEMA STORY-FRAME (carta con capítulos) ===== */
+.story-container { display: flex; flex-direction: column; gap: 0; }
+.story-text-block { padding: 10px 0 40px; opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.story-text-block.in-view { opacity: 1; transform: translateY(0); }
+.story-text-block p { line-height: 1.85; font-size: 1.08rem; font-weight: 500; margin-bottom: 16px; letter-spacing: 0.005em; }
+.story-text-block:first-of-type p:first-of-type::first-letter {
+    font-family: var(--font-serif); font-style: italic; font-weight: 700; font-size: 3.6rem; float: left; line-height: 0.75;
+    padding-right: 10px; padding-top: 8px; color: var(--accent);
+}
+.story-chapter-label {
+    font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent); opacity: 0.85; margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+    font-weight: 700;
+}
+.story-chapter-label::before { content: '▚'; font-size: 0.9rem; color: var(--accent-2); opacity: 0.8; }
+.story-chapter-label::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.3; }
+.story-frame {
+    position: relative; width: 100%; height: 340px; margin: 14px 0 42px;
+    border: var(--border-w) solid var(--ink);
+    box-shadow: 7px 7px 0px var(--shadow-color), 0 14px 30px -14px rgba(var(--grain-color),0.5);
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse 70% 60% at 50% 42%, var(--accent-soft), transparent 70%),
+        repeating-linear-gradient(45deg, transparent 0 13px, rgba(var(--grain-color),0.04) 13px 14px),
+        linear-gradient(135deg, var(--accent-soft), var(--bg-2));
+}
+/* perforaciones de película en los laterales del fotograma */
+.story-frame::before,
+.story-frame::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 18px; z-index: 4; pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--ink) 0 8px,
+        var(--card) 8px 16px
+    );
+    background-size: 100% 100%; opacity: 0.92;
+}
+.story-frame::before { left: 0; border-right: 2px solid var(--ink); }
+.story-frame::after { right: 0; border-left: 2px solid var(--ink); }
+.story-frame-caption {
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 16px;
+    background: linear-gradient(to top, rgba(15,6,10,0.9), rgba(15,6,10,0.15));
+    color: #fffaf9; font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.04em; z-index: 4; transform: translateY(100%); transition: transform 0.5s ease 0.3s;
+    display: flex; align-items: center; gap: 10px;
+}
+.story-frame-caption::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accent-2); box-shadow: 0 0 0 2px rgba(0,0,0,0.4), 0 0 8px var(--accent-2);
+}
+.story-frame.in-view .story-frame-caption { transform: translateY(0); }
+.story-frame-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 3; }
+.story-frame-placeholder {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--ink); text-align: center; padding: 20px; z-index: 2;
+    animation: placeholderBreath 5.5s ease-in-out infinite;
+    animation-play-state: var(--anim-play, running);
+}
+.story-frame-placeholder::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 46%, var(--accent-soft), transparent 62%),
+        radial-gradient(circle, var(--accent) 1px, transparent 1.5px);
+    background-size: auto, 18px 18px;
+    background-position: center, center;
+    opacity: 0.55;
+}
+.story-frame-placeholder::after {
+    content: ''; position: absolute; inset: 18px; pointer-events: none; opacity: 0.45;
+    background:
+        linear-gradient(var(--ink), var(--ink)) top left / 16px 3px,
+        linear-gradient(var(--ink), var(--ink)) top left / 3px 16px,
+        linear-gradient(var(--ink), var(--ink)) top right / 16px 3px,
+        linear-gradient(var(--ink), var(--ink)) top right / 3px 16px,
+        linear-gradient(var(--ink), var(--ink)) bottom left / 16px 3px,
+        linear-gradient(var(--ink), var(--ink)) bottom left / 3px 16px,
+        linear-gradient(var(--ink), var(--ink)) bottom right / 16px 3px,
+        linear-gradient(var(--ink), var(--ink)) bottom right / 3px 16px;
+    background-repeat: no-repeat;
+}
+@keyframes placeholderBreath {
+    0%, 100% { opacity: 0.75; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.012); }
+}
+.story-frame-placeholder svg { width: 44px; height: 44px; opacity: 0.75; filter: drop-shadow(0 2px 0 rgba(var(--grain-color),0.25)); animation: placeholderFloat 3.5s ease-in-out infinite; animation-play-state: var(--anim-play, running); }
+@keyframes placeholderFloat { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(-2deg); } }
+.story-frame[data-reveal="curtain"] .story-frame-media { clip-path: inset(50% 0 50% 0); transition: clip-path 1s cubic-bezier(0.65,0,0.35,1), opacity 0.3s ease; }
+.story-frame[data-reveal="curtain"].in-view .story-frame-media { clip-path: inset(0 0 0 0); opacity: 1; }
+.story-frame[data-reveal="focus"] .story-frame-media { transform: scale(1.35); filter: blur(14px); transition: transform 1.1s ease, filter 1.1s ease, opacity 0.4s ease; }
+.story-frame[data-reveal="focus"].in-view .story-frame-media { transform: scale(1); filter: blur(0); opacity: 1; }
+.story-frame[data-reveal="wipe"] .story-frame-media { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); transition: clip-path 0.9s cubic-bezier(0.76,0,0.24,1), opacity 0.3s ease; }
+.story-frame[data-reveal="wipe"].in-view .story-frame-media { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+.story-frame[data-reveal="finale"] { height: 420px; }
+.story-frame[data-reveal="finale"] .story-frame-media { transform: scale(1.15); opacity: 0; transition: transform 1.4s cubic-bezier(0.16,1,0.3,1), opacity 0.9s ease; }
+.story-frame[data-reveal="finale"].in-view .story-frame-media { transform: scale(1); opacity: 1; }
+.story-frame[data-reveal="finale"]::before {
+    content:''; position: absolute; inset: 0; background: #fff; z-index: 5; opacity: 1;
+    pointer-events: none; transition: opacity 0.6s ease 0.15s;
+}
+.story-frame[data-reveal="finale"].in-view::before { opacity: 0; }
+
+.letter-signature {
+    margin-top: 10px; padding-top: 20px; border-top: 2px dashed var(--ink);
+    display: flex; justify-content: space-between; align-items: flex-end;
+    opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.letter-signature.in-view { opacity: 1; transform: translateY(0); }
+.letter-signature-text { font-family: var(--font-hand); font-size: 2.3rem; color: var(--accent); transform: rotate(-1.5deg); display: inline-block; position: relative; }
+.letter-signature-sub { font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.7; margin-top: 4px; }
+.mini-vinyl {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: repeating-radial-gradient(circle, var(--ink) 0px, var(--ink) 1.5px, transparent 2px, transparent 6px);
+    border: 3px solid var(--ink); position: relative; flex-shrink: 0; animation: legendarySpin 4s linear infinite;
+    box-shadow: inset 0 0 8px rgba(var(--grain-color),0.35);
+    animation-play-state: var(--anim-play, running);
+}
+.mini-vinyl::before {
+    content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 40%);
+}
+.mini-vinyl::after {
+    content:''; position: absolute; inset: 0; margin: auto; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--accent); border: 2px solid var(--card);
+}
+
+/* ===== TOAST ===== */
+.toast-notification {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--card); font-family: var(--font-mono); font-size: 0.8rem;
+    padding: 11px 20px; border: 2px solid var(--card); z-index: 1500; opacity: 0;
+    box-shadow: 4px 4px 0 var(--accent);
+    border-radius: var(--radius-soft); letter-spacing: 0.03em;
+}
+
+/* ===== ESTADO DE ERROR (vale no encontrado) ===== */
+.error-window { text-align: center; }
+.error-window .error-icon { font-size: 4rem; display: block; margin: 10px auto 20px; opacity: 0.7; animation: errorBounce 2.2s ease-in-out infinite; animation-play-state: var(--anim-play, running); }
+@keyframes errorBounce { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(-6deg); } }
+.error-window h2 { font-family: var(--font-mono); font-size: 1.1rem; margin-bottom: 12px; letter-spacing: 0.05em; }
+.error-window p { font-weight: 600; opacity: 0.8; margin-bottom: 26px; }
+
+@keyframes legendarySpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+    .window-body { padding: 26px 20px; }
+    .story-frame { height: 260px; }
+    .story-frame[data-reveal="finale"] { height: 320px; }
+    .letter-signature-text { font-size: 2rem; }
+}
+/* En pantallas verticales (celular) la foto de fondo con "cover" recorta mucho al sujeto
+   y la opacidad baja la hace casi invisible: se muestra completa (contain) y más presente. */
+@media (max-width: 640px) {
+    .theme-cooky .bg-layer::before {
+        background-size: 100% 100%, contain;
+        background-position: center, center;
+        opacity: 0.62;
+    }
+    .theme-joji .bg-layer::before {
+        background-size: 100% 100%, contain;
+        background-position: center, center;
+        opacity: 0.75;
+        mix-blend-mode: normal;
+    }
+    .theme-cooky .theme-artwork, .theme-joji .theme-artwork { opacity: 1; }
+}
+@media (max-width: 400px) {
+    .letter-signature-text, .letter-signature-sub { transform: rotate(-0.75deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* ===== TEMA-SPECIFIC ENHANCED EFFECTS ===== */
+
+/* COOKY: Vinyl record spinning, floating hearts, sparkles */
+.theme-cooky .mini-vinyl {
+    background: 
+        repeating-radial-gradient(circle, var(--ink) 0px, var(--ink) 1.5px, transparent 2px, transparent 6px),
+        url('./img/coocky.png');
+    background-size: auto, 40px;
+    background-position: center, center;
+    background-repeat: no-repeat;
+}
+
+.theme-cooky .story-frame-placeholder::before {
+    background:
+        radial-gradient(circle at 50% 46%, var(--accent-soft), transparent 62%),
+        radial-gradient(circle, var(--accent) 1px, transparent 1.5px),
+        url('./img/cookyminiheart.png');
+    background-size: auto, 18px 18px, 60px;
+    background-position: center, center, center;
+    background-repeat: no-repeat, repeat, no-repeat;
+    opacity: 0.55;
+}
+
+.theme-cooky .rarity-tag.rarity-epico::before,
+.theme-cooky .rarity-tag.rarity-especial::before,
+.theme-cooky .rarity-tag.rarity-super-raro::before,
+.theme-cooky .rarity-tag.rarity-mitico::before,
+.theme-cooky .rarity-tag.rarity-legendario::before,
+.theme-cooky .rarity-tag.rarity-ultralegendario::before {
+    content: ''; position: absolute; inset: -4px;
+    background: url('./img/coocky3enamorau.png') center/contain no-repeat;
+    opacity: 0.15; pointer-events: none; z-index: -1;
+}
+
+/* JOJI: lluvia fina ya cubierta por .bg-layer::after; aquí se afina la estética lo-fi */
+
+.theme-joji .story-frame {
+    background-image:
+        radial-gradient(ellipse 70% 60% at 50% 42%, var(--accent-soft), transparent 70%),
+        repeating-linear-gradient(45deg, transparent 0 13px, rgba(var(--grain-color),0.04) 13px 14px),
+        linear-gradient(135deg, var(--accent-soft), var(--bg-2)),
+        url('./img/joji3.png');
+    background-size: 100% 100%, 100% 100%, 100% 100%, 150px;
+    background-position: center, 0 0, center, right 20px bottom 20px;
+    background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+    background-blend-mode: normal, normal, normal, overlay;
+}
+
+.theme-joji .mini-vinyl {
+    background: 
+        repeating-radial-gradient(circle, var(--ink) 0px, var(--ink) 1.5px, transparent 2px, transparent 6px),
+        url('./img/joji2.png');
+    background-size: auto, 40px;
+    background-position: center, center;
+    background-repeat: no-repeat;
+    border-color: var(--accent);
+}
+
+.theme-joji .rarity-tag::before {
+    content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    width: 16px; height: 16px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent) 30%, transparent 70%);
+    animation: jojiPulse 2s ease-in-out infinite;
+    animation-play-state: var(--anim-play, running);
+}
+
+@keyframes jojiPulse {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.6; }
+    50% { transform: translateX(-50%) scale(1.3); opacity: 1; }
+}
+
+/* BRAWL STARS: Stars, gems, boxes, comic effects (todo CSS, sin imágenes) */
+
+.theme-brawl .story-frame {
+    background-image:
+        radial-gradient(ellipse 70% 60% at 50% 42%, var(--accent-soft), transparent 70%),
+        repeating-linear-gradient(45deg, transparent 0 13px, rgba(var(--grain-color),0.04) 13px 14px),
+        linear-gradient(135deg, var(--accent-soft), var(--bg-2)),
+        radial-gradient(var(--accent-2) 2px, transparent 2.5px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 26px 26px;
+    background-position: center, 0 0, center, center;
+    background-repeat: no-repeat, repeat, no-repeat, repeat;
+    background-blend-mode: normal, normal, normal, normal;
+}
+
+.theme-brawl .mini-vinyl {
+    background: 
+        repeating-radial-gradient(circle, var(--ink) 0px, var(--ink) 1.5px, transparent 2px, transparent 6px);
+    border-color: var(--accent-2);
+    animation: brawlSpin 2s linear infinite;
+    animation-play-state: var(--anim-play, running);
+}
+
+@keyframes brawlSpin {
+    from { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    to { transform: rotate(360deg) scale(1); }
+}
+
+/* Enhanced star particles for Brawl theme */
+.theme-brawl .star-particle {
+    position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 10;
+    background: var(--accent-2); border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-2), 0 0 20px var(--accent-2);
+    animation: starParticleFloat 2s ease-out forwards;
+}
+
+@keyframes starParticleFloat {
+    0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(360deg); opacity: 0; }
+}
+
+/* ===== TRANSITION ENHANCEMENTS ===== */
+
+/* Page transition overlay */
+.page-transition {
+    position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.page-transition.active { transform: scaleY(1); transform-origin: top; }
+
+/* Theme switch transition */
+body.theme-switching * {
+    transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Enhanced focus states */
+*:focus-visible {
+    outline: 3px solid var(--accent-2);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(var(--grain-color), 0.2);
+}
+
+/* Reduced motion improvements */
+@media (prefers-reduced-motion: reduce) {
+    .theme-artwork, .bg-layer::before, .bg-layer::after,
+    .story-frame-placeholder, .mini-vinyl, .rarity-tag::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

@@ -1,0 +1,11 @@
+# Herramientas locales / dependencias
+.kilo/
+node_modules/
+
+# Backups
+gungeon_v3_backup.html
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

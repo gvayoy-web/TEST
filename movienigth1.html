@@ -1,0 +1,1190 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noche de Película — Para Ti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Reenie+Beanie&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Incluimos bibliotecas para efectos -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
+<style>
+/* ============================================================
+   SISTEMA DE DISEÑO NEO-BRUTALISTA CYBERPUNK (Optimizado Móvil)
+   ============================================================ */
+:root {
+  --bg: #050509; /* Fondo casi negro */
+  --ink: #10021f;
+  --paper: #fff6f9;
+  --accent: #ff2f6e; /* Rosa neón */
+  --accent-glow: rgba(255, 47, 110, 0.3);
+  --accent-2: #ffd23f; /* Amarillo */
+  --card-bg: #11111d; /* Fondo tarjetas */
+  --border-w: 3px;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-hand: 'Reenie Beanie', cursive;
+  --font-mono: 'Space Mono', monospace;
+}
+
+* { box-sizing: border-box; touch-action: manipulation; }
+
+html, body {
+  margin: 0; padding: 0; width: 100%; min-height: 100%;
+  background-color: var(--bg);
+  color: var(--paper);
+  font-family: var(--font-display);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fondo eliminado: las capas decorativas (punteado, halo neón y rejilla
+   en perspectiva) se quitaron para mejorar el rendimiento. El fondo oscuro
+   base (--bg) se conserva para mantener la estética cyberpunk. */
+
+/* ===== BOTÓN VOLVER (Neo-Brutalista Neon) ===== */
+.btn-volver {
+  position: fixed; top: 15px; left: 15px; z-index: 1000;
+  background: var(--accent-2); color: var(--ink);
+  border: var(--border-w) solid var(--ink);
+  padding: 8px 16px; font-weight: 900; font-size: 0.9rem;
+  text-transform: uppercase; text-decoration: none;
+  box-shadow: 4px 4px 0 var(--ink), 0 0 12px rgba(255,210,63,0.3);
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.15s ease;
+  cursor: pointer; font-family: var(--font-display); appearance: none;
+  animation: btnVolverGlow 3s ease-in-out infinite;
+}
+@keyframes btnVolverGlow {
+  0%, 100% { box-shadow: 4px 4px 0 var(--ink), 0 0 12px rgba(255,210,63,0.3); }
+  50% { box-shadow: 4px 4px 0 var(--ink), 0 0 22px rgba(255,210,63,0.55), 0 0 40px rgba(255,210,63,0.15); }
+}
+.btn-volver:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink), 0 0 28px rgba(255,210,63,0.5); background: #fff; }
+.btn-volver:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn-volver:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ===== ENCABEZADO DE LA PÁGINA ===== */
+.cinema-heading{
+  text-align: center; padding-top: 6px; position: relative;
+}
+.cinema-heading .eyebrow{
+  display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--accent-2); border: 2px solid var(--accent-2);
+  padding: 4px 12px; margin-bottom: 10px;
+  background: rgba(255,210,63,0.08); box-shadow: 0 0 18px rgba(255,210,63,0.35), 0 0 40px rgba(255,210,63,0.12), inset 0 0 12px rgba(255,210,63,0.06);
+  animation: eyebrowPulse 4s ease-in-out infinite;
+  text-shadow: 0 0 8px rgba(255,210,63,0.5);
+}
+@keyframes eyebrowPulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(255,210,63,0.35), 0 0 40px rgba(255,210,63,0.12), inset 0 0 12px rgba(255,210,63,0.06); }
+  50% { box-shadow: 0 0 26px rgba(255,210,63,0.55), 0 0 55px rgba(255,210,63,0.2), inset 0 0 18px rgba(255,210,63,0.1); }
+}
+.cinema-heading h1{
+  font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow:
+    3px 3px 0 var(--ink),
+    -1px -1px 0 var(--ink),
+    0 0 8px rgba(255,255,255,0.4),
+    0 0 20px var(--accent-glow);
+  margin: 0;
+  position: relative; display: inline-block;
+  overflow: hidden; padding-bottom: 4px;
+  animation: titleGlowPulse 4s ease-in-out infinite;
+}
+@keyframes titleGlowPulse {
+  0%, 100% { text-shadow: 3px 3px 0 var(--ink), -1px -1px 0 var(--ink), 0 0 10px var(--ink), 0 0 20px var(--accent-glow), 0 0 40px rgba(255,47,110,0.4), 0 0 80px rgba(255,47,110,0.2); }
+  50% { text-shadow: 3px 3px 0 var(--ink), -1px -1px 0 var(--ink), 0 0 15px var(--ink), 0 0 30px var(--accent-glow), 0 0 60px rgba(255,47,110,0.5), 0 0 100px rgba(255,47,110,0.3); }
+}
+/* destello metálico que recorre el texto del título */
+.cinema-heading h1::before{
+  content: attr(data-text); position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,1) 50%, transparent 70%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: titleSheen 3.4s linear infinite;
+  mix-blend-mode: overlay;
+}
+@keyframes titleSheen { 0% { background-position: 200% 0; } 60%, 100% { background-position: -50% 0; } }
+.cinema-heading h1::after{
+  content: ''; position: absolute; left: 10%; right: 10%; bottom: -10px; height: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), var(--accent), transparent);
+  border-radius: 2px; filter: drop-shadow(0 0 8px var(--accent)) drop-shadow(0 0 16px rgba(255,47,110,0.3));
+}
+.cinema-heading::before,
+.cinema-heading::after {
+  content: '✶'; position: absolute; top: 50%; font-size: 1.1rem; color: var(--accent-2);
+  text-shadow: 0 0 10px var(--accent-2), 0 0 20px rgba(255,210,63,0.4);
+  animation: starTwinkle 2.4s ease-in-out infinite;
+}
+.cinema-heading::before { left: calc(50% - 150px); }
+.cinema-heading::after { right: calc(50% - 150px); animation-delay: 1.2s; }
+@keyframes starTwinkle { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.cinema-container {
+  width: 100%; max-width: 500px; /* Ancho máximo de móvil */
+  margin: 0 auto; padding: 70px 15px 40px;
+  display: flex; flex-direction: column; gap: 25px;
+}
+
+/* ===== ENTRADA DE PELÍCULA ===== */
+.movie-input-section {
+  background: linear-gradient(145deg, var(--card-bg) 0%, #161628 100%);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink), 0 0 20px rgba(255,47,110,0.1);
+  padding: 20px; text-align: center;
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+.movie-input-section:hover {
+  box-shadow: 6px 6px 0 var(--ink), 0 0 30px rgba(255,47,110,0.18);
+}
+.movie-input-section::before{
+  content:''; position: absolute; top: -3px; left: 16px; right: 16px; height: 3px;
+  background: repeating-linear-gradient(90deg, var(--accent-2) 0 8px, transparent 8px 16px);
+}
+/* esquinas tipo retícula láser en los paneles */
+.movie-input-section::after,
+.movie-date-section::after {
+  content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border-top: 2px solid var(--accent); border-left: 2px solid var(--accent);
+  top: 8px; left: 8px; opacity: 0.7;
+}
+.movie-input-section label {
+  font-weight: 900; font-size: 1.3rem; margin-bottom: 12px; display: block;
+  color: var(--accent-2); text-transform: uppercase; letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255,210,63,0.35);
+  position: relative;
+}
+.movie-input-section label::before { content: '🎬 '; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+#movieTitleInput {
+  width: 100%; padding: 12px;
+  border: var(--border-w) solid var(--ink);
+  background: #fff; color: var(--ink);
+  font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
+  box-shadow: inset 3px 3px 0 rgba(0,0,0,0.1);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  border-radius: 2px;
+}
+#movieTitleInput::placeholder { color: #aaa; font-weight: 400; opacity: 0.8; }
+#movieTitleInput:focus { border-color: var(--accent); box-shadow: inset 3px 3px 0 rgba(0,0,0,0.1), 0 0 0 3px var(--accent-glow); transform: translateY(-1px); }
+
+/* ===== PANTALLA (Estilo Imagen) ===== */
+.cinema-screen-wrapper { width: 100%; text-align: center; margin-top: 10px; position: relative; padding: 10px 0; animation: screenWrapperFloat 6s ease-in-out infinite; }
+@keyframes screenWrapperFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+/* tira de película (perforaciones) arriba y abajo de la pantalla */
+.cinema-screen-wrapper::before,
+.cinema-screen-wrapper::after {
+  content: ''; position: absolute; left: 5%; right: 5%; height: 9px; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 6px, #262633 6px 12px);
+  opacity: 0.9;
+}
+.cinema-screen-wrapper::before { top: 0; border-bottom: 1px solid #000; }
+.cinema-screen-wrapper::after { bottom: 0; border-top: 1px solid #000; }
+.cinema-screen {
+  position: relative; width: 90%; height: 60px; margin: 0 auto;
+  background: #000;
+  border: 2px solid var(--paper);
+  box-shadow:
+    0 0 20px var(--accent-glow),
+    0 0 40px rgba(255,47,110,0.15),
+    inset 0 0 20px rgba(255,47,110,0.1),
+    inset 0 2px 30px rgba(255,47,110,0.08);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  border-radius: 50% 50% 3px 3px / 28% 28% 3px 3px;
+  animation: screenBreath 5s ease-in-out infinite;
+}
+@keyframes screenBreath {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(255,47,110,0.15), inset 0 0 20px rgba(255,47,110,0.1), inset 0 2px 30px rgba(255,47,110,0.08);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--accent-glow), 0 0 55px rgba(255,47,110,0.2), inset 0 0 28px rgba(255,47,110,0.14), inset 0 2px 40px rgba(255,47,110,0.1);
+  }
+}
+/* luz roja de grabación estilo "REC/EN VIVO" */
+.cinema-screen-badge {
+  position: absolute; top: 6px; left: 8px; z-index: 3;
+  display: flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--paper); opacity: 0.85;
+}
+.cinema-screen-badge::before{
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #ff2f3f; box-shadow: 0 0 6px #ff2f3f;
+  animation: recBlink 1.2s ease-in-out infinite;
+}
+@keyframes recBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.cinema-screen-badge::after{
+  content: 'EN VIVO'; display: inline-block;
+}
+/* número de salón, lado derecho */
+.cinema-screen-num{
+  position: absolute; top: 6px; right: 8px; z-index: 3;
+  font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.14em;
+  color: var(--accent-2); opacity: 0.85; text-transform: uppercase;
+}
+.cinema-screen.screen-active{ box-shadow: 0 0 26px var(--accent-glow), 0 0 46px var(--accent-glow), inset 0 0 14px var(--accent-glow); animation: screenBuzz 0.3s ease; }
+@keyframes screenBuzz { 0%,100% { transform: scaleX(1); } 25% { transform: scaleX(0.985); } 75% { transform: scaleX(1.015); } }
+/* Efecto de línea de escaneo */
+.cinema-screen::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(255,47,110,0.05) 50%);
+  background-size: 100% 4px; pointer-events: none;
+  animation: scanScroll 6s linear infinite;
+}
+@keyframes scanScroll{ from{ background-position-y: 0; } to{ background-position-y: 200px; } }
+.cinema-screen-text {
+  font-size: 1rem; font-weight: 900; letter-spacing: 3px;
+  color: var(--accent); text-transform: uppercase;
+  text-shadow: 0 0 8px var(--accent);
+  max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: text-shadow 0.3s ease;
+}
+
+/* ===== ÁREA DE BUTACAS (RECREACIÓN DE LA IMAGEN) ===== */
+.seats-main-wrapper {
+  background: var(--card-bg);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink), 0 0 15px rgba(255,47,110,0.08);
+  padding: 15px 10px; position: relative;
+  width: 100%;
+}
+.seats-main-wrapper::after{
+  content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent);
+  bottom: 8px; right: 8px; opacity: 0.7;
+}
+.seats-main-wrapper h3{
+  text-align: center; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #777; margin: 0 0 2px;
+}
+/* Leyenda "Zoom Amount" simulada de la imagen para autenticidad */
+.seats-legend {
+  font-family: var(--font-mono); font-size: 0.7rem; color: #555;
+  position: absolute; top: 5px; right: 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+.seats-legend span:last-child{ animation: legendBlink 1.4s ease-in-out infinite; }
+@keyframes legendBlink{ 0%,100%{ opacity: 1; } 50%{ opacity: 0.3; } }
+
+.seats-area {
+  display: flex; flex-direction: column; gap: 4px;
+  padding-top: 15px; width: 100%; align-items: center;
+}
+.seats-row { display: flex; justify-content: center; gap: 2px; width: 100%; min-width: 260px; position: relative; }
+.seats-row-label {
+  position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-mono); font-size: 0.62rem; font-weight: 700;
+  color: #6a6a82; width: 14px; text-align: center; pointer-events: none;
+  border: 1px solid #3a3a52; border-radius: 3px; padding: 2px 0;
+}
+.seats-block { display: flex; gap: 2px; flex-shrink: 0; }
+.seats-aisle { width: 12px; flex-shrink: 0; }
+
+/* EL ASIENTO CON ESENCIA DE ASIENTO */
+.cinema-seat {
+  width: 18px; height: 16px; /* Proporción más rectangular */
+  cursor: pointer; position: relative;
+  background: transparent; border: none; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+/* El cuerpo del asiento */
+.cinema-seat::before {
+  content: ''; position: absolute;
+  top: 2px; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(160deg, #34344c 0%, #22222f 100%); /* Color base oscuro con relieve */
+  border: 1.5px solid var(--paper); /* Borde blanco de la imagen */
+  border-radius: 3px 3px 1px 1px;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  transition: all 0.15s cubic-bezier(0.34,1.56,0.64,1);
+}
+/* El respaldo (esencia) */
+.cinema-seat::after {
+  content: ''; position: absolute;
+  top: 0; left: 3px; right: 3px; height: 4px;
+  background: linear-gradient(160deg, #34344c 0%, #22222f 100%); border: 1.5px solid var(--paper);
+  border-bottom: none; border-radius: 2px 2px 0 0;
+  transition: all 0.15s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* Estado HOVER (no tan relevante en móvil pero bueno tenerlo) */
+.cinema-seat:not(.selected):hover::before,
+.cinema-seat:not(.selected):hover::after { background: #46466a; transform: translateY(-1px); }
+.cinema-seat:not(.selected):hover::before { box-shadow: 0 0 7px rgba(255,255,255,0.25); }
+.cinema-seat:not(.selected):hover::after { box-shadow: 0 0 7px rgba(255,255,255,0.18); }
+
+/* ESTADO SELECCIONADO (Estilo Imagen - Rosa brillante) */
+.cinema-seat.selected::before {
+  background: linear-gradient(160deg, #ff6f9c, var(--accent)); border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent), 0 0 2px #fff; transform: scale(1.12);
+}
+.cinema-seat.selected::after {
+  background: linear-gradient(160deg, #ff6f9c, var(--accent)); border-color: var(--accent);
+  transform: scale(1.12) translateY(-1px);
+}
+/* filas alternas sutilmente más claras para leer el mapa */
+.seats-row:nth-child(even) { background: linear-gradient(180deg, transparent, rgba(255,255,255,0.03) 60%); }
+@keyframes seatPop{ 0%{ transform: scale(1); } 45%{ transform: scale(1.35); } 100%{ transform: scale(1.12); } }
+.cinema-seat.selected.just-selected::before{ animation: seatPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.cinema-seat:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+
+/* Ajustes de tamaño para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .cinema-seat { width: 16px; height: 14px; }
+  .seats-aisle { width: 8px; }
+}
+
+/* ===== CONTADOR DE BUTACAS (Estilo Imagen) ===== */
+.butacas-counter {
+  background: #fff; color: #000;
+  border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink), 0 0 18px rgba(255,47,110,0.18);
+  padding: 15px; width: 100%;
+  display: flex; align-items: center; gap: 15px;
+  font-family: var(--font-mono);
+  transition: box-shadow 0.2s ease;
+}
+.butacas-counter:hover{ box-shadow: 6px 6px 0 var(--ink), 0 0 28px rgba(255,47,110,0.35); }
+.counter-box {
+  background: var(--accent-2); color: var(--ink);
+  border: 2px solid var(--ink);
+  padding: 5px 12px; font-family: var(--font-display);
+  font-weight: 900; font-size: 1.5rem;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.counter-ico {
+  flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+  background: #fff; border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink), 0 0 10px rgba(255,47,110,0.18);
+  animation: counterIconFloat 4s ease-in-out infinite;
+}
+@keyframes counterIconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.counter-text { font-size: 0.85rem; font-weight: 700; color: #333; flex: 1;}
+.counter-box.counter-bump{ animation: counterBump 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes counterBump{ 0%{ transform: scale(1); } 50%{ transform: scale(1.3) rotate(-4deg); } 100%{ transform: scale(1) rotate(0); } }
+
+/* ===== SECCIÓN FECHA/HORA ===== */
+.movie-date-section {
+  background: linear-gradient(145deg, var(--card-bg) 0%, #161628 100%);
+  border: var(--border-w) solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink), 0 0 15px rgba(255,47,110,0.08);
+  padding: 20px; width: 100%; position: relative;
+}
+.movie-date-section h2 {
+  font-size: 1.3rem; font-weight: 900; margin: 0 0 15px; text-align: center;
+  color: var(--paper); text-transform: uppercase;
+  text-shadow: 0 0 12px var(--accent-glow);
+  padding-bottom: 10px; position: relative;
+}
+.movie-date-section h2::after{
+  content: ''; position: absolute; left: 50%; bottom: 0; width: 60px; height: 3px;
+  transform: translateX(-50%); background: var(--accent-2);
+  box-shadow: 0 0 8px var(--accent-2);
+}
+.date-time-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.field-group { width: 100%; display: flex; flex-direction: column; gap: 5px; }
+.field-group label { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; color: #aaa; }
+.field-group input {
+  padding: 12px; border: var(--border-w) solid var(--ink);
+  background: #fff; color: var(--ink);
+  font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.1);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.field-group input:focus { border-color: var(--accent-2); box-shadow: inset 2px 2px 0 rgba(0,0,0,0.1), 0 0 0 3px rgba(255,210,63,0.25); transform: translateY(-1px); }
+
+/* ===== BOTÓN CONFIRMAR ===== */
+.btn-confirm {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #ff2f6e 0%, #ff5f6e 55%, #ff8f6e 100%);
+  color: #fff;
+  border: var(--border-w) solid var(--ink);
+  font-family: var(--font-display); font-weight: 900; font-size: 1.1rem;
+  text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink), 0 0 22px var(--accent-glow), 0 0 50px rgba(255,47,110,0.15);
+  transition: all 0.15s ease;
+  position: relative; overflow: hidden;
+  border-radius: 3px;
+}
+.btn-confirm::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(transparent, rgba(255,255,255,0.2), transparent);
+  transform: rotate(45deg); animation: btnShine 3s infinite;
+}
+@keyframes btnShine { 0% { transform: translate(-100%, -100%) rotate(45deg); } 100% { transform: translate(100%, 100%) rotate(45deg); } }
+.btn-confirm:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink), 0 0 26px var(--accent-glow); }
+.btn-confirm:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+.btn-confirm:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+
+/* ===== MENSAJE INLINE (reemplaza a alert()) ===== */
+.form-alert {
+  display: none; align-items: center; gap: 10px; text-align: left;
+  background: #2a0a14; border: 3px solid var(--accent); color: #fff;
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 12px 14px; margin-top: 16px;
+  font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; line-height: 1.4;
+}
+.form-alert.visible { display: flex; animation: alertShake 0.3s ease; }
+.form-alert .alert-ico {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+}
+@keyframes alertShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* ============================================================
+   SECCIÓN TICKET FINAL (Oculta al inicio)
+   ============================================================ */
+#ticketSection {
+  display: none; /* Importante: Oculto por defecto */
+  width: 100%; flex-direction: column; align-items: center;
+  padding-top: 20px;
+}
+
+.ticket-wrapper {
+  background: #fff; color: #000; /* Fondo blanco papel */
+  width: 100%; max-width: 320px;
+  border: 3px solid #000;
+  position: relative;
+  font-family: var(--font-mono);
+  box-shadow: 10px 10px 0 rgba(255,255,255,0.05);
+  animation: ticketGlowPulse 2.4s ease-in-out infinite 0.6s;
+}
+@keyframes ticketGlowPulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(255,47,110,0.16), 10px 10px 0 rgba(255,255,255,0.05); }
+  50% { box-shadow: 0 0 30px rgba(255,47,110,0.45), 10px 10px 0 rgba(255,255,255,0.05); }
+}
+
+/* Bordes rasgados arriba y abajo */
+.ticket-wrapper::before, .ticket-wrapper::after {
+  content: ''; position: absolute; left: -3px; right: -3px; height: 10px;
+  background-size: 16px 10px; background-repeat: repeat-x; z-index: 10;
+}
+.ticket-wrapper::before {
+  top: -6px; background-image: radial-gradient(circle at 8px 0px, transparent 8px, #000 9px, #000 10px, transparent 11px);
+}
+.ticket-wrapper::after {
+  bottom: -6px; background-image: radial-gradient(circle at 8px 10px, transparent 8px, #000 9px, #000 10px, transparent 11px);
+}
+
+/* Cabecera Ticket */
+.ticket-header {
+  background:
+    repeating-linear-gradient(90deg, rgba(255,47,110,0.06) 0 4px, transparent 4px 8px),
+    #000;
+  color: #fff;
+  padding: 15px; text-align: center;
+  border-bottom: 3px dashed #fff;
+  position: relative; overflow: hidden;
+}
+.ticket-header::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), var(--accent), transparent);
+  opacity: 0.9;
+}
+.ticket-header h3 {
+  margin: 0; font-size: 1.25rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--accent-2);
+  text-shadow: 0 0 10px rgba(255,210,63,0.5);
+}
+.ticket-header p { margin: 5px 0 0; font-size: 0.65rem; text-transform: uppercase; opacity: 0.8; }
+
+/* Cuerpo Ticket */
+.ticket-body {
+  padding: 20px; position: relative;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 26px, rgba(0,0,0,0.025) 26px 27px),
+    linear-gradient(160deg, #fff 0%, #f7f3ee 100%);
+}
+/* Muescas laterales de ticket */
+.ticket-body::before, .ticket-body::after {
+  content: ''; position: absolute; top: 50%; width: 20px; height: 20px;
+  background: var(--bg); border: 3px solid #000; border-radius: 50%; z-index: 5;
+}
+.ticket-body::before { left: -13px; transform: translateY(-50%); }
+.ticket-body::after { right: -13px; transform: translateY(-50%); }
+
+.ticket-info { margin-bottom: 15px; }
+.ticket-label { font-size: 0.6rem; text-transform: uppercase; color: #777; letter-spacing: 1px; margin-bottom: 2px;}
+.ticket-value { font-size: 1rem; font-weight: 700; color: #000; word-wrap: break-word; }
+.ticket-value.movie { font-size: 1.2rem; text-transform: uppercase; color: var(--accent); text-shadow: 1px 1px 0 rgba(255,47,110,0.15); }
+.ticket-seats-pill {
+  display: inline-block; background: #eee; border: 1px solid #ccc;
+  padding: 2px 6px; font-size: 0.8rem; font-weight: 700; margin-top: 3px;
+  border-radius: 2px;
+}
+.ticket-seats-pill:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Sello "confirmado" estilo estampilla, ligeramente rotado */
+.ticket-stamp{
+  position: absolute; top: 14px; right: 18px; z-index: 6;
+  border: 3px solid var(--accent); color: var(--accent);
+  font-family: var(--font-display); font-weight: 900; font-size: 0.68rem;
+  letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 8px;
+  transform: rotate(-14deg); opacity: 0.9; border-radius: 3px;
+  animation: stampIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;
+  box-shadow: inset 0 0 0 2px rgba(255,47,110,0.12), 0 0 8px rgba(255,47,110,0.4);
+  background: rgba(255,47,110,0.05);
+}
+@keyframes stampIn{ from{ opacity: 0; transform: rotate(-14deg) scale(2); } to{ opacity: 0.9; transform: rotate(-14deg) scale(1); } }
+
+/* Separador */
+.ticket-divider { border-top: 2px dashed #ccc; margin: 15px 0; }
+
+/* Código de barras simulado */
+.ticket-barcode {
+  display: flex; align-items: flex-end; gap: 2px; height: 34px;
+  justify-content: center; padding: 8px 0 4px;
+  border-top: 2px dashed #ccc; border-bottom: 2px dashed #ccc; margin: 0 0 14px;
+}
+.ticket-barcode i {
+  display: block; flex: 0 0 auto; background: #000;
+}
+.ticket-barcode i:nth-child(3n) { width: 3px; height: 100%; }
+.ticket-barcode i:nth-child(3n+1) { width: 1px; height: 68%; }
+.ticket-barcode i:nth-child(3n+2) { width: 2px; height: 82%; }
+.ticket-barcode i:nth-child(5n) { width: 4px; height: 100%; }
+
+/* QR simulado */
+.ticket-qr-area { text-align: center; padding: 10px 0; }
+.ticket-qr-code {
+  display: inline-block; padding: 5px; background: #fff; border: 2px solid #000;
+}
+.ticket-qr-text { font-size: 0.5rem; color: #555; margin-top: 5px; text-transform: uppercase; }
+
+/* Número de lote / serie, como talón de entrada */
+.ticket-serial {
+  margin-top: 12px; padding-top: 8px; border-top: 2px dashed #ccc;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888;
+}
+.ticket-serial .serial-num { font-weight: 700; color: #333; letter-spacing: 0.18em; }
+
+/* talón de valor, esquina inferior */
+.ticket-tab {
+  display: inline-block; margin-top: 10px;
+  background: #fff; border: 2px solid #000;
+  font-size: 0.62rem; font-weight: 900; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 3px 10px;
+  color: #000; transform: rotate(-2deg);
+}
+
+/* Instrucción Final */
+.ticket-instruction {
+  font-family: var(--font-hand); font-size: 1.6rem; color: var(--accent-2);
+  text-align: center; margin-top: 25px; padding: 0 10px; line-height: 1.2;
+  text-shadow: 2px 2px 0 var(--ink);
+  animation: instructionFloat 3.2s ease-in-out infinite;
+}
+@keyframes instructionFloat { 0%,100% { transform: rotate(-1deg) translateY(0); } 50% { transform: rotate(-1deg) translateY(-4px); } }
+
+/* Animación de aparición del ticket */
+@keyframes ticketIn {
+  from { opacity: 0; transform: translateY(50px) scale(0.9) rotate(5deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+.ticket-appear { animation: ticketIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+/* Accesibilidad: desactiva animaciones decorativas con movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ticket-appear { animation: none; opacity: 1; transform: none; }
+}
+
+@media (max-width: 480px) {
+  .cinema-heading h1 { font-size: 2.8rem; }
+  .cinema-heading::before,
+  .cinema-heading::after { display: none; }
+  .cinema-container { padding: 50px 15px 40px; }
+  .cinema-screen { height: 80px; }
+  .cinema-seat { width: 26px; height: 22px; }
+  .seats-row { min-width: 0; }
+}
+
+@media (max-width: 320px) {
+  .cinema-seat { width: 22px; height: 18px; }
+  .seats-aisle { width: 6px; }
+}
+
+
+
+</style>
+</head>
+<body>
+
+<!-- BOTÓN VOLVER -->
+<button type="button" class="btn-volver" onclick="goBackToChest()">← volver al cofre</button>
+
+<main class="cinema-container" role="main">
+
+  <div class="cinema-heading">
+    <span class="eyebrow">vale especial</span>
+    <h1 data-text="Noche de Película">Noche de Película</h1>
+  </div>
+
+
+  <!-- FORMULARIO DE ENTRADA (Se oculta al final) -->
+  <div id="setupForm" style="display: flex; flex-direction: column; gap: 25px; width: 100%;">
+    
+    <!-- ENTRADA PELÍCULA -->
+    <section class="movie-input-section">
+      <label for="movieTitleInput">¿Qué película quieres ver?</label>
+      <input type="text" id="movieTitleInput" placeholder="Escribe el título mágico..." maxlength="30">
+    </section>
+
+    <!-- PANTALLA -->
+    <section class="cinema-screen-wrapper">
+      <div class="cinema-screen">
+        <span class="cinema-screen-badge" aria-hidden="true"></span>
+        <span class="cinema-screen-num" aria-hidden="true">Sala 001</span>
+        <span class="cinema-screen-text" id="screenMovieTitle">TU PELÍCULA AQUÍ</span>
+      </div>
+    </section>
+
+    <!-- MAPA BUTACAS (CORREGIDO ID Y ESTRUCTURA) -->
+    <section class="seats-main-wrapper" id="seatsMainWrapper">
+      <div class="seats-legend"><span>Zoom Amount</span> <span style="color:red">●</span></div>
+      <div class="seats-area" id="seatsArea">
+        <!-- Las butacas se generan aquí con JS -->
+      </div>
+    </section>
+
+    <!-- CONTADOR BUTACAS -->
+    <div class="butacas-counter" id="butacasCounter">
+      <span class="counter-ico" aria-hidden="true">🎟️</span>
+      <div class="counter-box" id="seatCount">0</div>
+      <div class="counter-text" id="seatLabels">Ninguna butaca seleccionada. ¡Toca tus favoritas!</div>
+    </div>
+
+    <!-- FECHA Y HORA -->
+    <section class="movie-date-section">
+      <h2>¿Cuándo es la cita?</h2>
+      <div class="date-time-row">
+        <div class="field-group">
+          <label for="movieDate">Fecha</label>
+          <input type="date" id="movieDate">
+        </div>
+        <div class="field-group">
+          <label for="movieTime">Hora</label>
+          <input type="time" id="movieTime">
+        </div>
+      </div>
+      <button type="button" class="btn-confirm" id="confirmBtn">Confirmar y Crear Entrada</button>
+      <div class="form-alert" id="formAlert" role="alert" aria-live="polite">
+        <span class="alert-ico" aria-hidden="true">!</span>
+        <span id="formAlertText"></span>
+      </div>
+    </section>
+
+  </div> <!-- Fin setupForm -->
+
+  <!-- SECCIÓN TICKET FINAL (CORREGIDO ID PARA JS) -->
+  <section id="ticketSection">
+    <div class="ticket-wrapper ticket-appear">
+      <div class="ticket-stamp">Confirmado</div>
+      <div class="ticket-header">
+        <h3>ADMIT ONE</h3>
+        <p>VALE POR UNA NOCHE MÁGICA</p>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-info">
+          <div class="ticket-label">Película</div>
+          <div class="ticket-value movie" id="ticketMovie">---</div>
+        </div>
+        <div class="ticket-info">
+          <div class="ticket-label">Fecha y Hora</div>
+          <div class="ticket-value" id="ticketDateTime">---</div>
+        </div>
+        <div class="ticket-info">
+          <div class="ticket-label">Butacas (<span id="ticketSeatCount">0</span>)</div>
+          <div class="ticket-value" id="ticketSeats">---</div>
+        </div>
+        <div class="ticket-divider"></div>
+        <div class="ticket-barcode" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="ticket-qr-area">
+          <div class="ticket-qr-code">
+            <!-- QR simulado simple -->
+            <svg width="80" height="80" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 0H7V7H0V0ZM1 1V6H6V1H1Z" fill="black"/>
+              <path d="M2 2H5V5H2V2Z" fill="black"/>
+              <path d="M13 0H20V7H13V0ZM14 1V6H19V1H14Z" fill="black"/>
+              <path d="M15 2H18V5H15V2Z" fill="black"/>
+              <path d="M0 13H7V20H0V13ZM1 14V19H6V14H1Z" fill="black"/>
+              <path d="M2 15H5V18H2V15Z" fill="black"/>
+              <path d="M9 0H11V2H9V0Z" fill="black"/>
+              <path d="M9 4H11V7H9V4Z" fill="black"/>
+              <path d="M13 9H15V11H13V9Z" fill="black"/>
+              <path d="M17 9H20V11H17V9Z" fill="black"/>
+              <path d="M9 13H11V15H9V13Z" fill="black"/>
+              <path d="M13 13H15V17H13V13Z" fill="black"/>
+              <path d="M17 13H19V15H17V13Z" fill="black"/>
+              <path d="M13 19H15V20H13V19Z" fill="black"/>
+              <path d="M17 17H20V20H17V17Z" fill="black"/>
+              <path d="M9 17H11V20H9V17Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="ticket-qr-text">Noche de Película — Para Ti</div>
+        </div>
+        <div class="ticket-serial">
+          <span>vale especial · no transferible</span>
+          <span class="serial-num" id="ticketSerial">Nº 000000</span>
+        </div>
+        <span class="ticket-tab" aria-hidden="true">gratis · 1 entrada</span>
+      </div>
+    </div>
+    <p class="ticket-instruction">¡tomale captura y cuando quieras mandalo y canjealo!</p>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // --- Elementos del DOM ---
+  const movieInput = document.getElementById('movieTitleInput');
+  const screenTitle = document.getElementById('screenMovieTitle');
+  const seatsArea = document.getElementById('seatsArea');
+  const seatCountEl = document.getElementById('seatCount');
+  const seatLabelsEl = document.getElementById('seatLabels');
+  const dateInput = document.getElementById('movieDate');
+  const timeInput = document.getElementById('movieTime');
+  const confirmBtn = document.getElementById('confirmBtn');
+
+  // Elementos de control de visibilidad y ticket
+  const setupForm = document.getElementById('setupForm');
+  const ticketSection = document.getElementById('ticketSection'); // ID CORREGIDO
+  const ticketMovie = document.getElementById('ticketMovie');
+  const ticketDateTime = document.getElementById('ticketDateTime');
+  const ticketSeatCount = document.getElementById('ticketSeatCount');
+  const ticketSeats = document.getElementById('ticketSeats');
+  const ticketSerial = document.getElementById('ticketSerial');
+
+  const selectedSeats = new Set();
+
+   // --- Inicialización ---
+   function init() {
+     generateSeats();
+     setupEventListeners();
+     setMinimumDate();
+   }
+
+   function playEntryAnimation() {
+     if (typeof anime !== 'undefined') {
+       anime({
+         targets: '.cinema-heading, .movie-input-section, .cinema-screen-wrapper, .seats-main-wrapper, .butacas-counter, .movie-date-section',
+         opacity: [0, 1],
+         translateY: [20, 0],
+         delay: anime.stagger(100),
+         duration: 600,
+         easing: 'easeOutExpo'
+       });
+     }
+   }
+
+  // --- Configurar Eventos ---
+  let screenActiveTimeout;
+  function setupEventListeners() {
+    // Actualizar título de pantalla en tiempo real
+    movieInput.addEventListener('input', function() {
+      screenTitle.textContent = this.value.toUpperCase() || 'TU PELÍCULA AQUÍ';
+      // Pequeño destello en la pantalla mientras se escribe, como si "cargara" el título
+      const screenEl = document.querySelector('.cinema-screen');
+      screenEl.classList.add('screen-active');
+      clearTimeout(screenActiveTimeout);
+      screenActiveTimeout = setTimeout(() => screenEl.classList.remove('screen-active'), 400);
+    });
+
+    // Botón confirmar
+    confirmBtn.addEventListener('click', handleConfirmation);
+  }
+
+  // --- Recreación del Mapa de Butacas de la Imagen ---
+  function generateSeats() {
+    const fragment = document.createDocumentFragment();
+    
+    // Definición de filas (I es la última abajo, A arriba)
+    // Usamos el orden de la imagen: I abajo -> A arriba visualmente
+    const rowLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+    
+    // Invertimos para construir de arriba (A) a abajo (I)
+    rowLabels.forEach((rowLabel) => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'seats-row';
+
+      // Etiqueta de fila (A, B, C...) a la izquierda
+      const rowLabelEl = document.createElement('span');
+      rowLabelEl.className = 'seats-row-label';
+      rowLabelEl.textContent = rowLabel;
+      rowLabelEl.setAttribute('aria-hidden', 'true');
+      rowEl.appendChild(rowLabelEl);
+
+      // Estructura asimétrica basada en la imagen
+
+      // BLOQUE IZQUIERDO (Varía por fila)
+      const leftBlock = document.createElement('div');
+      leftBlock.className = 'seats-block';
+      
+      let leftCount = 0;
+      if (['A', 'B', 'C'].includes(rowLabel)) leftCount = 2;
+      else if (['D', 'E', 'F', 'G', 'H', 'I'].includes(rowLabel)) leftCount = 3;
+      
+      for (let i = 1; i <= leftCount; i++) {
+        leftBlock.appendChild(makeSeat(rowLabel, i));
+      }
+      rowEl.appendChild(leftBlock);
+      
+      // PASILLO
+      const aisle = document.createElement('div');
+      aisle.className = 'seats-aisle';
+      rowEl.appendChild(aisle);
+      
+      // BLOQUE DERECHO
+      const rightBlock = document.createElement('div');
+      rightBlock.className = 'seats-block';
+      
+      // Fila I (última) tiene hueco central, recreamos eso
+      if (rowLabel === 'I') {
+        // Parte izquierda del bloque derecho
+        for (let j = leftCount + 1; j <= leftCount + 2; j++) {
+          rightBlock.appendChild(makeSeat(rowLabel, j));
+        }
+        // Hueco interno (pequeño pasillo extra en fila I)
+        const innerGap = document.createElement('div');
+        innerGap.className = 'seats-aisle'; 
+        innerGap.style.width = '8px';
+        rightBlock.appendChild(innerGap);
+        // Parte derecha del bloque derecho
+        for (let j = leftCount + 3; j <= leftCount + 10; j++) {
+          rightBlock.appendChild(makeSeat(rowLabel, j));
+        }
+      } else {
+        // Filas normales A-H
+        let rightCount = (['A', 'B', 'C'].includes(rowLabel)) ? 8 : 10;
+        for (let j = 1; j <= rightCount; j++) {
+          const seatNum = leftCount + j;
+          rightBlock.appendChild(makeSeat(rowLabel, seatNum));
+        }
+      }
+      
+      rowEl.appendChild(rightBlock);
+      fragment.appendChild(rowEl);
+    });
+    
+    seatsArea.appendChild(fragment);
+  }
+
+  // Función auxiliar para crear una butaca
+  function makeSeat(row, num) {
+    const seatId = row + num;
+    const seat = document.createElement('div');
+    seat.className = 'cinema-seat';
+    seat.dataset.seatId = seatId;
+    seat.setAttribute('role', 'checkbox');
+    seat.setAttribute('aria-label', `Butaca ${seatId}`);
+    seat.setAttribute('tabindex', '0');
+    
+    seat.addEventListener('click', toggleSeat);
+    // Soporte para teclado (espacio/enter)
+    seat.addEventListener('keydown', function(e) {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        toggleSeat.call(this);
+      }
+    });
+    
+    return seat;
+  }
+
+  // --- Lógica de Selección de Butaca ---
+  function toggleSeat() {
+    const seatId = this.dataset.seatId;
+    if (selectedSeats.has(seatId)) {
+      selectedSeats.delete(seatId);
+      this.classList.remove('selected');
+      this.setAttribute('aria-checked', 'false');
+    } else {
+      selectedSeats.add(seatId);
+      this.classList.add('selected', 'just-selected');
+      this.setAttribute('aria-checked', 'true');
+      // Quitamos la clase de animación "pop" tras reproducirse, para poder reactivarla luego
+      setTimeout(() => this.classList.remove('just-selected'), 320);
+      
+      // Pequeño efecto de vibración al seleccionar
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+    updateCounter();
+  }
+
+  // --- Actualizar Panel de Contador (Estilo Imagen) ---
+  function updateCounter() {
+    const count = selectedSeats.size;
+    seatCountEl.textContent = count;
+    seatCountEl.classList.remove('counter-bump');
+    void seatCountEl.offsetWidth; /* fuerza reflow para poder reiniciar la animación */
+    seatCountEl.classList.add('counter-bump');
+    
+    if (count === 0) {
+      seatLabelsEl.textContent = 'Ninguna butaca seleccionada. ¡Toca tus favoritas!';
+      seatLabelsEl.style.color = '#777';
+    } else {
+      const sortedSeats = Array.from(selectedSeats).sort((a, b) => {
+        // Ordenar primero por fila, luego por número
+        if (a[0] !== b[0]) return a[0].localeCompare(b[0]);
+        return parseInt(a.slice(1)) - parseInt(b.slice(1));
+      });
+      seatLabelsEl.textContent = 'Butacas: ' + sortedSeats.join(', ');
+      seatLabelsEl.style.color = '#000';
+    }
+  }
+
+  // --- Mensaje inline de validación (reemplaza a alert) ---
+  function showAlert(msg) {
+    const el = document.getElementById('formAlert');
+    const text = document.getElementById('formAlertText');
+    if (!el || !text) return;
+    text.textContent = msg;
+    el.classList.remove('visible');
+    void el.offsetWidth;
+    el.classList.add('visible');
+  }
+
+  // --- Lógica de Confirmación Final ---
+  function handleConfirmation() {
+    const title = movieInput.value.trim();
+    const date = dateInput.value;
+    const time = timeInput.value;
+
+    document.getElementById('formAlert').classList.remove('visible');
+    
+    // Validación básica
+    if (!title) { showAlert('¿Qué película veremos? ¡Escribe el título!'); movieInput.focus(); return; }
+    if (selectedSeats.size === 0) { showAlert('¡Selecciona al menos una butaca cómoda!'); return; }
+    if (!date || !time) { showAlert('¿Cuándo es la cita? Selecciona fecha y hora.'); return; }
+    
+    // --- Rellenar Ticket ---
+    ticketMovie.textContent = title;
+    
+    // Formatear fecha amigable
+    const dateObj = new Date(date + 'T' + time);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateStr = dateObj.toLocaleDateString('es-ES', options);
+    ticketDateTime.textContent = dateStr + ' a las ' + time;
+    
+    ticketSeatCount.textContent = selectedSeats.size;
+    
+    // Butacas formateadas como píldoras
+    const sortedSeats = Array.from(selectedSeats).sort().map(s => `<span class="ticket-seats-pill">${s}</span>`);
+    ticketSeats.innerHTML = sortedSeats.join(' ');
+
+    // Número de serie aleatorio del talón
+    if (ticketSerial) ticketSerial.textContent = 'Nº ' + String(Math.floor(100000 + Math.random() * 900000));
+    
+    // --- MOSTRAR TICKET (Corregido) ---
+    // Ocultamos el formulario
+    setupForm.style.display = 'none';
+    // Mostramos la sección del ticket
+    ticketSection.style.display = 'flex';
+    
+    // Efectos finales
+    launchConfetti();
+    window.scrollTo(0, 0); // Subir arriba para ver el ticket
+  }
+
+  // Utilidades
+  function setMinimumDate() {
+    // No permitir seleccionar fechas pasadas
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+  }
+
+  function loadConfetti() {
+    return new Promise((resolve) => {
+      if (typeof confetti === 'function') return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
+      s.onload = resolve;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function launchConfetti() {
+    await loadConfetti();
+    if (typeof confetti === 'undefined') return;
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff2f6e', '#ffd23f', '#ffffff']
+    });
+  }
+
+// Ejecutar al cargar
+   if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', () => { init(); playEntryAnimation(); });
+   } else {
+     init();
+     if (document.readyState === 'complete') {
+       window.addEventListener('load', playEntryAnimation);
+     } else {
+       playEntryAnimation();
+     }
+   }
+
+  /* ==========================================================================
+     MOVIE NIGHT ENHANCED EFFECTS (movienigth1.html)
+     ========================================================================== */
+
+   // Floating film strips and popcorn particles
+   function addMovieNightElements() {
+     // Remove old floating elements if re-initialized
+     document.querySelectorAll('.movie-night-float').forEach(el => el.remove());
+
+     // Floating film strips
+     for (let i = 0; i < 3; i++) {
+        const film = document.createElement('div');
+         film.className = 'movie-night-float';
+         film.style.cssText = `
+             position: fixed;
+             width: ${60 + Math.random() * 40}px;
+             height: ${20 + Math.random() * 15}px;
+             left: ${Math.random() * 100}%;
+             top: ${Math.random() * 100}%;
+             background: repeating-linear-gradient(90deg, #000 0 8px, #fff 8px 16px);
+             border: 2px solid #ff2f6e;
+             border-radius: 3px;
+             opacity: 0.1;
+             pointer-events: none;
+             z-index: 1;
+             animation: movieFilmFloat ${15 + Math.random() * 10}s ease-in-out infinite;
+             animation-delay: ${Math.random() * 8}s;
+         `;
+         document.body.appendChild(film);
+     }
+
+     // Floating popcorn
+     for (let i = 0; i < 5; i++) {
+         const popcorn = document.createElement('div');
+         popcorn.className = 'movie-night-float';
+         popcorn.style.cssText = `
+             position: fixed;
+             width: ${10 + Math.random() * 12}px;
+             height: ${10 + Math.random() * 12}px;
+             left: ${Math.random() * 100}%;
+             top: ${Math.random() * 100}%;
+             background: #fff8dc;
+             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+             box-shadow: 2px 2px 0 #ffd23f;
+             opacity: 0.15;
+             pointer-events: none;
+             z-index: 1;
+             animation: moviePopcornFloat ${12 + Math.random() * 8}s ease-in-out infinite;
+             animation-delay: ${Math.random() * 8}s;
+         `;
+         document.body.appendChild(popcorn);
+     }
+   }
+  
+  // Click/tap film/popcorn burst
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('button, a, input, .cinema-seat')) {
+      createMovieBurst(e.clientX, e.clientY);
+    }
+  });
+  
+  document.addEventListener('touchstart', (e) => {
+    if (!e.target.closest('button, a, input, .cinema-seat')) {
+      const touch = e.touches[0];
+      createMovieBurst(touch.clientX, touch.clientY);
+    }
+  }, { passive: true });
+  
+   const movieBurstParticles = [];
+   function createMovieBurst(x, y) {
+     const colors = ['#ff2f6e', '#ffd23f', '#ffffff', '#ff8c00'];
+     for (let i = 0; i < 10; i++) {
+       if (movieBurstParticles.length >= 40) {
+         const oldest = movieBurstParticles.shift();
+         if (oldest && oldest.parentNode) oldest.remove();
+       }
+       const particle = document.createElement('div');
+       const isPopcorn = Math.random() < 0.5;
+       particle.style.cssText = `
+         position: fixed;
+         left: ${x}px;
+         top: ${y}px;
+         width: ${isPopcorn ? '10px' : '6px'};
+         height: ${isPopcorn ? '10px' : '6px'};
+         background: ${colors[Math.floor(Math.random() * colors.length)]};
+         border-radius: ${isPopcorn ? '50% 50% 50% 50% / 60% 60% 40% 40%' : '3px'};
+         pointer-events: none;
+         z-index: 1000;
+         animation: movieBurst ${0.6 + Math.random() * 0.6}s ease-out forwards;
+         --tx: ${(Math.random() - 0.5) * 250}px;
+         --ty: ${(Math.random() - 0.5) * 250}px;
+       `;
+       movieBurstParticles.push(particle);
+       document.body.appendChild(particle);
+       particle.addEventListener('animationend', () => {
+         const idx = movieBurstParticles.indexOf(particle);
+         if (idx !== -1) movieBurstParticles.splice(idx, 1);
+         particle.remove();
+       }, { once: true });
+       setTimeout(() => {
+         const idx = movieBurstParticles.indexOf(particle);
+         if (idx !== -1) movieBurstParticles.splice(idx, 1);
+         particle.remove();
+       }, 1300);
+     }
+   }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addMovieNightElements);
+  } else {
+    addMovieNightElements();
+  }
+  
+  // Add animation styles
+  const movieStyles = document.createElement('style');
+  movieStyles.textContent = `
+    @keyframes movieFilmFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.1; }
+      50% { transform: translateY(-40px) rotate(5deg); opacity: 0.2; }
+    }
+    @keyframes moviePopcornFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.15; }
+      50% { transform: translateY(-30px) rotate(180deg) scale(1.2); opacity: 0.3; }
+    }
+    @keyframes movieBurst {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(movieStyles);
+})();
+</script>
+<script src="./pencil-trail.js"></script>
+</body>
+</html>
